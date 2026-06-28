@@ -26,7 +26,39 @@ grounded in the ecosystem dependency map (`SYSTEM.md`):
 Each system shows **up / degraded / down**, **latency**, **last-checked**, a
 30-point **history sparkline**, and **uptime %** over the recorded window.
 
-Classification rules (all unit-tested in [`tests/probe.test.js`](tests/probe.test.js)):
+## Machine-readable surface (agent-friendly)
+
+The dashboard is rendered client-side; **agents should read the JSON directly**
+rather than scraping the HTML. Every public document is committed by the probe
+cron and served with `no-cache`, and is described by a committed, versioned JSON
+Schema.
+
+| Path | What | Schema |
+|---|---|---|
+| [`/health.json`](public/health.json) | Tiny summary for quick polling: `{schemaVersion, overall, generatedAt, systems:{id:status}}` | [`/health.schema.json`](public/health.schema.json) |
+| [`/status.json`](public/status.json) | Full snapshot: overall, summary counts, per-system records (status, latency, detail, `errorCode`) | [`/status.schema.json`](public/status.schema.json) |
+| [`/history.json`](public/history.json) | Rolling per-system history series (keyed by id) | [`/history.schema.json`](public/history.schema.json) |
+| [`/llms.txt`](public/llms.txt) | Machine entry point pointing at all of the above + the contract | — |
+
+Each emitted document carries a `$schema` key referencing its schema, so it is
+self-describing. The schemas are pinned to **`schemaVersion`** (currently `1`),
+bumped only on a **breaking** change to the document shape (additive fields do
+not bump it) — branch on it to detect a contract break.
+
+**Stable status enum:** `up` (reachable + healthy) · `degraded` (reachable but
+impaired) · `down` (unreachable / DNS / TLS / 5xx). **`overall`** is the
+worst-of across systems not marked `excludeFromOverall`.
+
+**Stable failure-code enum** (`detail.errorCode`, branch on this not the human
+`error` string): `TIMEOUT`, `TRANSPORT`, `HTTP_5XX`, `HTTP_4XX`, `RPC_ERROR`,
+`RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`.
+
+**DOM hooks** for driving the rendered page: `#overall` carries `data-testid="overall"`,
+`data-overall`, `data-generated-at`; each row carries `data-testid="system-row"`,
+`data-system-id`, `data-status`, `data-uptime`, `data-latency-ms`.
+
+Classification rules (all unit-tested in [`tests/probe.test.js`](tests/probe.test.js)),
+and the schema/contract conformance is guarded in [`tests/schema.test.js`](tests/schema.test.js):
 
 - **HTTP**: 2xx = up, 3xx/4xx = degraded (reachable, wrong response), 5xx or
   no-response (DNS/TLS/transport) = down. A bad/expired cert fails the default
@@ -48,18 +80,25 @@ GitHub Actions cron (every 5 min)
   └─ node scripts/run-probes.js     (server-side: fetch each endpoint)
        └─ lib/probe.js              (pure classify + shape + history roll)
             ├─ public/status.json   (current snapshot, committed)
-            └─ public/history.json  (rolling per-system series, committed)
+            ├─ public/history.json  (rolling per-system series, committed)
+            └─ public/health.json   (tiny {id:status} summary, committed)
                  ▲
-static site (public/) fetches both ──┘  → renders dashboard (app.js)
+static site (public/) fetches them ──┘  → renders dashboard (app.js)
   └─ scripts/build.js: public/ → dist/  → deploy.yml: S3 sync + CloudFront
+```
+
+The committed JSON Schemas (`public/*.schema.json`) and `public/llms.txt` are
+static contracts that ride the normal build → deploy path.
 ```
 
 - **`lib/probe.js`** — pure, I/O-free probe/health-classification + status.json
   shaping + history rolling + uptime. This is the tested core.
 - **`scripts/run-probes.js`** — the cron entrypoint; the only place with
-  networking. Maps each target to its classifier and writes the two JSON files.
+  networking. Maps each target to its classifier and writes `status.json`,
+  `history.json`, and `health.json` (stamping each with a `$schema` reference).
 - **`public/`** — the static dashboard (`index.html`, `styles.css`, `app.js`) +
-  the committed `status.json` / `history.json`.
+  the committed `status.json` / `history.json` / `health.json`, the JSON Schemas
+  (`*.schema.json`), and `llms.txt`.
 - **Branding** — clean white product theme using the canonical DIG palette
   (violet `#5800D6` → magenta `#FF00DE`, Space Grotesk / Space Mono), consistent
   with dig.net and the hub.
@@ -67,8 +106,8 @@ static site (public/) fetches both ──┘  → renders dashboard (app.js)
 ## Run locally
 
 ```bash
-npm test            # run the unit tests (node --test)
-npm run probe       # probe live endpoints -> public/status.json + history.json
+npm test            # run the unit tests (node --test) — probe logic + schema conformance
+npm run probe       # probe live endpoints -> public/{status,history,health}.json
 npm run serve       # static server on http://localhost:4173 (serves public/)
 # one-liner:
 npm run probe && npm run serve
@@ -78,34 +117,24 @@ npm run probe && npm run serve
 
 ## Deploy
 
-Deploy mirrors `dig.net`'s pattern: **build → S3 sync → CloudFront invalidate**,
-via [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), triggered on
-push to `main` (the probe cron's commits trigger it too, so the live site
-refreshes automatically).
+The site is **live at https://status.dig.net**. Deploy mirrors `dig.net`'s
+pattern: **build → S3 sync → CloudFront invalidate**, via
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml), triggered on push
+to `main` (the probe cron's commits trigger it too, so the live site refreshes
+automatically). The probe-generated docs (`status.json` / `history.json` /
+`health.json`) are re-put with `no-cache` so they are never served stale; the
+static contracts (`*.schema.json`, `llms.txt`) ride the normal-cache sync.
 
-The deploy is **parameterized** because the infra does not exist yet. Set these
-repo **Variables** (Settings → Secrets and variables → Actions → Variables):
+It deploys to **S3 `status-dig-net`** behind **CloudFront `E3GQZ6ABW10CUL`**
+(`status.dig.net`). The bucket, distribution, and OIDC deploy role are read from
+repo **Variables** so the workflow stays portable:
 
-| Var | Example | Purpose |
+| Var | Value | Purpose |
 |---|---|---|
 | `STATUS_S3_BUCKET` | `status-dig-net` | S3 website bucket |
-| `STATUS_CLOUDFRONT_DISTRIBUTION_ID` | `EXXXXXXXXXXXXX` | CloudFront distribution |
+| `STATUS_CLOUDFRONT_DISTRIBUTION_ID` | `E3GQZ6ABW10CUL` | CloudFront distribution |
 | `CI_DEPLOY_ROLE_ARN` | `arn:aws:iam::…:role/…` | OIDC deploy role (same scheme as dig.net) |
 
-Until all three are set, the deploy job **builds + verifies and then skips the
-S3 sync** with a clear notice, so it stays green pre-provisioning.
-
-### Infra to provision (parent / AWS admin)
-
-`status.dig.net` has **no AWS infra yet**. To go live, provision (mirroring
-dig.net):
-
-1. **S3 bucket** `status-dig-net` (static website hosting).
-2. **CloudFront distribution** in front of it (default root object `index.html`),
-   honoring the short-TTL behavior for `status.json` / `history.json` (the
-   deploy re-puts them `no-cache` and invalidates `/*`).
-3. **Route53** `status.dig.net` A/AAAA alias → the distribution; ACM cert in
-   `us-east-1` for `status.dig.net`.
-4. Allow the existing OIDC `CI_DEPLOY_ROLE_ARN` to `s3:*` on the bucket and
-   `cloudfront:CreateInvalidation` on the distribution, then set the three repo
-   vars above.
+If any of the three is unset, the deploy job **builds + verifies and then skips
+the S3 sync** with a clear notice (a safety net should the vars be cleared), so
+it stays green regardless.

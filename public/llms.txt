@@ -1,0 +1,45 @@
+# status.dig.net
+
+> Public health & status dashboard for the DIG Network. It reports the live
+> health of the central, shared systems the whole ecosystem relies on at
+> runtime. A scheduled server-side probe checks each endpoint, classifies the
+> result, and commits machine-readable JSON that this static site serves.
+
+The dashboard is rendered client-side from the JSON files below; an agent should
+read the JSON directly rather than scraping the HTML.
+
+## Machine-readable
+
+- [health.json](https://status.dig.net/health.json): Tiny summary for quick polling — `{schemaVersion, overall, generatedAt, systems:{id:status}}`. Fetch this first.
+- [status.json](https://status.dig.net/status.json): Full current snapshot — overall rollup, per-state summary counts, and a record per system (status, latencyMs, checkedAt, detail, errorCode). Self-describing via a `$schema` key.
+- [history.json](https://status.dig.net/history.json): Rolling per-system history series (oldest first), keyed by system id; ~10 days of 5-minute samples.
+- [status.schema.json](https://status.dig.net/status.schema.json): JSON Schema for status.json (versioned by `schemaVersion`).
+- [health.schema.json](https://status.dig.net/health.schema.json): JSON Schema for health.json.
+- [history.schema.json](https://status.dig.net/history.schema.json): JSON Schema for history.json.
+
+## Contract
+
+- `schemaVersion` (currently `1`) versions the document shape. It is bumped only on a breaking change; additive fields do not bump it. Branch on it to detect a contract break.
+- Status enum (stable): `up` (reachable + healthy), `degraded` (reachable but impaired — slow, wrong-but-live response, JSON-RPC error, not-synced, stale peak, or an unreachable optional target), `down` (unreachable / DNS / TLS / 5xx).
+- `overall` is the worst-of rollup across systems NOT marked `excludeFromOverall` (optional, not-yet-provisioned endpoints never drag the whole ecosystem down).
+- Failure codes (`detail.errorCode`, stable enum): `TIMEOUT`, `TRANSPORT`, `HTTP_5XX`, `HTTP_4XX`, `RPC_ERROR`, `RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`. Branch on this code, not the human `error` string.
+- `detail.kind` discriminates the probe family: `http`, `jsonrpc`, `chainview`, `derived`.
+
+## Monitored systems
+
+- `rpc` — rpc.dig.net: DIG JSON-RPC read service (blind content retrieval). The read path every client uses.
+- `hub-api` — hub.dig.net /v1: DIGHUb REST control plane (account/store/domain lifecycle).
+- `docs` — docs.dig.net: Docusaurus documentation site.
+- `dignet` — dig.net: marketing / entry-point site.
+- `cdn` — cdn.dig.net: §21 encrypted-chunk CDN host front (optional; excluded from overall until provisioned).
+- `coinset` — coinset.org ChainView: Chia mainnet RPC (blockchain state / peak height) — the chain trust root.
+- `chia-mainnet` — Chia mainnet liveness, derived from coinset peak-height freshness (depends on `coinset`).
+
+## DOM hooks (for driving the rendered dashboard)
+
+- `#overall` carries `data-testid="overall"`, `data-overall`, and `data-generated-at`.
+- Each system row carries `data-testid="system-row"`, `data-system-id`, `data-status`, `data-uptime`, and `data-latency-ms`.
+
+## Source
+
+- [GitHub: DIG-Network/status.dig.net](https://github.com/DIG-Network/status.dig.net): probe core in `lib/probe.js`, monitored systems in `lib/targets.js`.

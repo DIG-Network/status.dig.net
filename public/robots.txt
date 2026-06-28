@@ -1,2 +1,6 @@
 User-agent: *
 Allow: /
+
+# Machine-readable entry point (status/health JSON + schemas + system catalogue)
+# See https://llmstxt.org/
+Sitemap: https://status.dig.net/llms.txt

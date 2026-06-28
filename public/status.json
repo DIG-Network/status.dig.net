@@ -1,5 +1,7 @@
 {
-  "generatedAt": "2026-06-28T23:11:58.121Z",
+  "$schema": "https://status.dig.net/status.schema.json",
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-28T23:23:09.693Z",
   "overall": "up",
   "summary": {
     "up": 6,
@@ -13,8 +15,8 @@
       "name": "rpc.dig.net",
       "category": "Read path",
       "status": "up",
-      "latencyMs": 382,
-      "checkedAt": "2026-06-28T23:11:47.945Z",
+      "latencyMs": 380,
+      "checkedAt": "2026-06-28T23:23:00.006Z",
       "description": "DIG JSON-RPC read service (blind content retrieval).",
       "url": "https://rpc.dig.net/",
       "detail": {
@@ -27,8 +29,8 @@
       "name": "hub.dig.net /v1",
       "category": "Control plane",
       "status": "up",
-      "latencyMs": 258,
-      "checkedAt": "2026-06-28T23:11:48.160Z",
+      "latencyMs": 286,
+      "checkedAt": "2026-06-28T23:23:00.331Z",
       "description": "DIGHUb REST /v1 control plane (account/store/domain lifecycle).",
       "url": "https://hub.dig.net/v1/health",
       "detail": {
@@ -41,8 +43,8 @@
       "name": "docs.dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 201,
-      "checkedAt": "2026-06-28T23:11:47.893Z",
+      "latencyMs": 268,
+      "checkedAt": "2026-06-28T23:23:00.008Z",
       "description": "Docusaurus documentation site (HTTP 200 + cert).",
       "url": "https://docs.dig.net/",
       "detail": {
@@ -55,8 +57,8 @@
       "name": "dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 82,
-      "checkedAt": "2026-06-28T23:11:47.714Z",
+      "latencyMs": 110,
+      "checkedAt": "2026-06-28T23:22:59.797Z",
       "description": "Marketing site (HTTP 200 + cert).",
       "url": "https://dig.net/",
       "detail": {
@@ -69,13 +71,14 @@
       "name": "cdn.dig.net",
       "category": "Read path",
       "status": "degraded",
-      "latencyMs": 10493,
-      "checkedAt": "2026-06-28T23:11:58.121Z",
+      "latencyMs": 10008,
+      "checkedAt": "2026-06-28T23:23:09.693Z",
       "description": "§21 encrypted-chunk CDN (host front).",
       "url": "https://cdn.dig.net/",
       "detail": {
         "kind": "http",
-        "httpStatus": null
+        "httpStatus": null,
+        "errorCode": "TRANSPORT"
       },
       "error": "fetch failed",
       "excludeFromOverall": true
@@ -85,16 +88,16 @@
       "name": "coinset.org ChainView",
       "category": "Chia",
       "status": "up",
-      "latencyMs": 232,
-      "checkedAt": "2026-06-28T23:11:47.863Z",
+      "latencyMs": 181,
+      "checkedAt": "2026-06-28T23:22:59.868Z",
       "description": "Chia mainnet RPC (blockchain state / peak height) — the chain trust root.",
       "url": "https://api.coinset.org/get_blockchain_state",
       "detail": {
         "kind": "chainview",
-        "peakHeight": 8933675,
+        "peakHeight": 8933711,
         "synced": true
       },
-      "peakHeight": 8933675
+      "peakHeight": 8933711
     },
     {
       "id": "chia-mainnet",
@@ -102,13 +105,13 @@
       "category": "Chia",
       "status": "up",
       "latencyMs": 0,
-      "checkedAt": "2026-06-28T23:11:58.121Z",
+      "checkedAt": "2026-06-28T23:23:09.693Z",
       "description": "Mainnet liveness — derived from coinset peak-height freshness.",
       "detail": {
         "kind": "derived",
-        "peakHeight": 8933675,
-        "advancedBy": 86,
-        "secondsSincePrev": 1707
+        "peakHeight": 8933711,
+        "advancedBy": 20,
+        "secondsSincePrev": 286
       }
     }
   ]

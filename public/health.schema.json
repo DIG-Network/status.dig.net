@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://status.dig.net/health.schema.json",
+  "title": "DIG Network health.json",
+  "description": "Tiny machine summary of DIG Network health for quick agent polling. A pure projection of status.json (same overall + generatedAt) carrying only a flat {systemId: status} map — no latency, detail, or history. Fetch this instead of the full status.json when you only need the rollup + per-system states.",
+  "type": "object",
+  "required": ["schemaVersion", "overall", "generatedAt", "systems"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "Self-reference to this JSON Schema, so the document is self-describing.",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "description": "Version of THIS document schema; kept in lockstep with status.schema.json.",
+      "type": "integer",
+      "const": 1
+    },
+    "overall": {
+      "description": "Worst-of rollup across all non-excluded systems (identical to status.json's overall).",
+      "type": "string",
+      "enum": ["up", "degraded", "down"]
+    },
+    "generatedAt": {
+      "description": "ISO-8601 UTC timestamp of the underlying snapshot (identical to status.json's generatedAt).",
+      "type": "string",
+      "format": "date-time"
+    },
+    "systems": {
+      "description": "Flat map of stable system id -> health state.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "enum": ["up", "degraded", "down"]
+      }
+    }
+  }
+}

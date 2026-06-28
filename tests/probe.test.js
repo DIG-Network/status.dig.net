@@ -15,9 +15,12 @@ import {
   classifyPeakFreshness,
   shapeResult,
   buildStatus,
+  buildHealth,
   appendHistory,
   computeUptime,
   STATUS,
+  SCHEMA_VERSION,
+  ERROR_CODE,
 } from '../lib/probe.js';
 
 // ---------------------------------------------------------------------------
@@ -231,6 +234,117 @@ test('buildStatus: degraded but none down → overall degraded', () => {
     ],
   });
   assert.equal(doc.overall, STATUS.DEGRADED);
+});
+
+// ---------------------------------------------------------------------------
+// schemaVersion — the status.json document carries a documented, versioned
+// machine-schema contract so an agent can detect a breaking change. It must be
+// a positive integer and appear at the TOP of the document (before overall).
+// ---------------------------------------------------------------------------
+test('SCHEMA_VERSION is a positive integer', () => {
+  assert.equal(typeof SCHEMA_VERSION, 'number');
+  assert.ok(Number.isInteger(SCHEMA_VERSION) && SCHEMA_VERSION >= 1);
+});
+
+test('buildStatus: emits schemaVersion equal to SCHEMA_VERSION', () => {
+  const doc = buildStatus({
+    generatedAt: '2026-06-28T00:00:00.000Z',
+    systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 10, checkedAt: 't' })],
+  });
+  assert.equal(doc.schemaVersion, SCHEMA_VERSION);
+  // schemaVersion is the first key so the contract version is discoverable up-front.
+  assert.equal(Object.keys(doc)[0], 'schemaVersion');
+});
+
+// ---------------------------------------------------------------------------
+// buildHealth() — a tiny machine summary for quick agent polling. It carries
+// the schemaVersion, the overall rollup, generatedAt, and a flat {id:status}
+// map (no per-system latency/history/detail). It must be derivable from a
+// status doc alone, and stay consistent with buildStatus's overall.
+// ---------------------------------------------------------------------------
+test('buildHealth: summarizes a status doc into {schemaVersion, overall, generatedAt, systems:{id:status}}', () => {
+  const doc = buildStatus({
+    generatedAt: '2026-06-28T00:00:00.000Z',
+    systems: [
+      shapeResult({ id: 'rpc', name: 'rpc.dig.net', status: STATUS.UP, latencyMs: 10, checkedAt: 't' }),
+      shapeResult({ id: 'cdn', name: 'cdn.dig.net', status: STATUS.DEGRADED, latencyMs: 10, checkedAt: 't' }),
+    ],
+  });
+  const health = buildHealth(doc);
+  assert.equal(health.schemaVersion, SCHEMA_VERSION);
+  assert.equal(health.overall, doc.overall);
+  assert.equal(health.generatedAt, '2026-06-28T00:00:00.000Z');
+  assert.deepEqual(health.systems, { rpc: STATUS.UP, cdn: STATUS.DEGRADED });
+});
+
+test('buildHealth: overall mirrors buildStatus (worst-of) for the same systems', () => {
+  const doc = buildStatus({
+    generatedAt: 't',
+    systems: [
+      shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 10, checkedAt: 't' }),
+      shapeResult({ id: 'b', name: 'B', status: STATUS.DOWN, latencyMs: 10, checkedAt: 't' }),
+    ],
+  });
+  assert.equal(buildHealth(doc).overall, STATUS.DOWN);
+});
+
+test('buildHealth: is a tiny summary — no per-system latency/detail leaks in', () => {
+  const doc = buildStatus({
+    generatedAt: 't',
+    systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 99, checkedAt: 't', detail: { kind: 'http' } })],
+  });
+  const health = buildHealth(doc);
+  // The systems map is a flat id->status enum, not the full records.
+  assert.equal(health.systems.a, STATUS.UP);
+  assert.equal(typeof health.systems.a, 'string');
+});
+
+// ---------------------------------------------------------------------------
+// errorCode — the classifiers attach a STABLE, catalogued machine code (from
+// ERROR_CODE) to non-up outcomes, so an agent can branch on the code instead of
+// scraping the human `error` prose. These guard the documented enum contract.
+// ---------------------------------------------------------------------------
+test('classifyHttp: 5xx carries errorCode HTTP_5XX', () => {
+  assert.equal(classifyHttp({ status: 503, latencyMs: 80 }).errorCode, ERROR_CODE.HTTP_5XX);
+});
+
+test('classifyHttp: 4xx carries errorCode HTTP_4XX', () => {
+  assert.equal(classifyHttp({ status: 404, latencyMs: 80 }).errorCode, ERROR_CODE.HTTP_4XX);
+});
+
+test('classifyHttp: transport failure carries errorCode TRANSPORT', () => {
+  assert.equal(classifyHttp({ error: 'fetch failed' }).errorCode, ERROR_CODE.TRANSPORT);
+});
+
+test('classifyHttp: timeout carries errorCode TIMEOUT', () => {
+  assert.equal(classifyHttp({ error: 'timeout' }).errorCode, ERROR_CODE.TIMEOUT);
+});
+
+test('classifyJsonRpc: a JSON-RPC error object carries errorCode RPC_ERROR', () => {
+  const r = classifyJsonRpc({ status: 200, body: { jsonrpc: '2.0', id: 1, error: { code: -32601, message: 'x' } }, latencyMs: 90 });
+  assert.equal(r.errorCode, ERROR_CODE.RPC_ERROR);
+});
+
+test('classifyJsonRpc: a non-jsonrpc 2xx body carries errorCode RPC_MALFORMED', () => {
+  assert.equal(classifyJsonRpc({ status: 200, body: { hi: 1 }, latencyMs: 90 }).errorCode, ERROR_CODE.RPC_MALFORMED);
+});
+
+test('classifyChainView: not-synced carries errorCode NOT_SYNCED', () => {
+  const body = { blockchain_state: { peak: { height: 10 }, sync: { synced: false } } };
+  assert.equal(classifyChainView({ status: 200, body, latencyMs: 110 }).errorCode, ERROR_CODE.NOT_SYNCED);
+});
+
+test('classifyChainView: missing peak carries errorCode NO_PEAK', () => {
+  assert.equal(classifyChainView({ status: 200, body: {}, latencyMs: 110 }).errorCode, ERROR_CODE.NO_PEAK);
+});
+
+test('classifyPeakFreshness: a stale (non-advancing) peak carries errorCode STALE_PEAK', () => {
+  const r = classifyPeakFreshness({ height: 100, prevHeight: 100, secondsSincePrev: 1800 });
+  assert.equal(r.errorCode, ERROR_CODE.STALE_PEAK);
+});
+
+test('classify*: a healthy outcome has no errorCode', () => {
+  assert.equal(classifyHttp({ status: 200, latencyMs: 80 }).errorCode, undefined);
 });
 
 // ---------------------------------------------------------------------------

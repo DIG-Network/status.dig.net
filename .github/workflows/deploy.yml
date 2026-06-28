@@ -69,11 +69,14 @@ jobs:
           CLOUDFRONT_DISTRIBUTION_ID: ${{ vars.STATUS_CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           set -euo pipefail
-          # status.json/history.json must never be served stale: sync the bulk
-          # of the site with normal caching, then re-put the JSON with no-cache.
+          # The probe-generated docs (status.json/history.json/health.json) must
+          # never be served stale: sync the bulk of the site with normal caching,
+          # then re-put those JSON files with no-cache. (The *.schema.json files
+          # are static contracts and ride the normal-cache sync.)
           aws s3 sync dist "s3://${S3_BUCKET}" --delete \
-            --exclude 'status.json' --exclude 'history.json'
+            --exclude 'status.json' --exclude 'history.json' --exclude 'health.json'
           aws s3 cp dist/status.json  "s3://${S3_BUCKET}/status.json"  --cache-control 'no-cache, max-age=0'
           aws s3 cp dist/history.json "s3://${S3_BUCKET}/history.json" --cache-control 'no-cache, max-age=0' || true
+          aws s3 cp dist/health.json  "s3://${S3_BUCKET}/health.json"  --cache-control 'no-cache, max-age=0' || true
           aws cloudfront create-invalidation \
             --distribution-id "${CLOUDFRONT_DISTRIBUTION_ID}" --paths '/*'

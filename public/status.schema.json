@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://status.dig.net/status.schema.json",
+  "title": "DIG Network status.json",
+  "description": "Current health snapshot for the central DIG Network systems, produced server-side by the status.dig.net probe cron and committed to public/status.json. This is the canonical, versioned machine contract for the document. schemaVersion is bumped only on a breaking change.",
+  "type": "object",
+  "required": ["schemaVersion", "generatedAt", "overall", "summary", "systems"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "description": "Self-reference to this JSON Schema, so the document is self-describing.",
+      "type": "string"
+    },
+    "schemaVersion": {
+      "description": "Version of THIS document schema. Bumped only on a breaking change to the shape; additive fields do not bump it.",
+      "type": "integer",
+      "const": 1
+    },
+    "generatedAt": {
+      "description": "ISO-8601 UTC timestamp when this snapshot was assembled.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "overall": {
+      "description": "Worst-of rollup across all non-excluded systems.",
+      "$ref": "#/$defs/status"
+    },
+    "summary": {
+      "description": "Per-state counts. `total` counts every system (including excludeFromOverall ones).",
+      "type": "object",
+      "required": ["up", "degraded", "down", "total"],
+      "additionalProperties": false,
+      "properties": {
+        "up": { "type": "integer", "minimum": 0 },
+        "degraded": { "type": "integer", "minimum": 0 },
+        "down": { "type": "integer", "minimum": 0 },
+        "total": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "systems": {
+      "description": "One record per monitored system, in the order defined by lib/targets.js.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/system" }
+    }
+  },
+  "$defs": {
+    "status": {
+      "description": "The stable health-state enum. 'up' = reachable + healthy; 'degraded' = reachable but impaired (slow / wrong-but-live response / JSON-RPC error / not-synced / stale peak / unreachable optional); 'down' = unreachable or hard-failed (no response / DNS / TLS / 5xx).",
+      "type": "string",
+      "enum": ["up", "degraded", "down"]
+    },
+    "errorCode": {
+      "description": "Stable, catalogued machine failure code attached to a non-up check, so an agent branches on the code instead of the human `error` prose.",
+      "type": "string",
+      "enum": [
+        "TIMEOUT",
+        "TRANSPORT",
+        "HTTP_5XX",
+        "HTTP_4XX",
+        "RPC_ERROR",
+        "RPC_MALFORMED",
+        "NOT_SYNCED",
+        "NO_PEAK",
+        "STALE_PEAK"
+      ]
+    },
+    "system": {
+      "type": "object",
+      "required": ["id", "name", "status", "latencyMs", "checkedAt"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Stable system identifier (matches lib/targets.js and history.json keys).",
+          "type": "string"
+        },
+        "name": { "description": "Human display name.", "type": "string" },
+        "category": {
+          "description": "Grouping label for the dashboard (e.g. 'Read path', 'Control plane', 'Sites', 'Chia').",
+          "type": ["string", "null"]
+        },
+        "status": { "$ref": "#/$defs/status" },
+        "latencyMs": {
+          "description": "Probe round-trip latency in milliseconds, clamped to a non-negative integer. 0 for synthetic/derived rows.",
+          "type": "integer",
+          "minimum": 0
+        },
+        "checkedAt": {
+          "description": "ISO-8601 UTC timestamp this system was checked.",
+          "type": "string",
+          "format": "date-time"
+        },
+        "description": { "description": "Plain-language description of the system.", "type": "string" },
+        "url": { "description": "The probed endpoint (absent for derived rows).", "type": "string" },
+        "error": {
+          "description": "Human-readable failure detail when not up (e.g. 'fetch failed', 'timeout'). Branch on detail.errorCode, not this string.",
+          "type": "string"
+        },
+        "excludeFromOverall": {
+          "description": "When true the system is shown + counted in summary but does NOT influence `overall` (e.g. an optional, not-yet-provisioned endpoint).",
+          "type": "boolean"
+        },
+        "peakHeight": {
+          "description": "Convenience copy of the latest Chia peak height (present only on the coinset record, used for cross-run freshness).",
+          "type": "integer"
+        },
+        "detail": {
+          "description": "Probe-kind-specific detail. The `kind` discriminator selects which extra fields are present.",
+          "type": "object",
+          "properties": {
+            "kind": {
+              "description": "Probe family discriminator.",
+              "type": "string",
+              "enum": ["http", "jsonrpc", "chainview", "derived"]
+            },
+            "errorCode": { "$ref": "#/$defs/errorCode" },
+            "httpStatus": {
+              "description": "(kind=http) HTTP status code, or null on a transport failure.",
+              "type": ["integer", "null"]
+            },
+            "method": {
+              "description": "(kind=jsonrpc) The JSON-RPC method probed.",
+              "type": "string"
+            },
+            "rpcError": {
+              "description": "(kind=jsonrpc) The JSON-RPC error object returned, when the service answered with an error.",
+              "type": "object"
+            },
+            "peakHeight": {
+              "description": "(kind=chainview|derived) Chia mainnet peak block height, or null.",
+              "type": ["integer", "null"]
+            },
+            "synced": {
+              "description": "(kind=chainview) Whether the node reports it is synced, or null.",
+              "type": ["boolean", "null"]
+            },
+            "advancedBy": {
+              "description": "(kind=derived) How many blocks the peak advanced since the previous probe (null on first run).",
+              "type": ["integer", "null"]
+            },
+            "secondsSincePrev": {
+              "description": "(kind=derived) Wall-clock seconds since the previous recorded peak.",
+              "type": "integer"
+            }
+          },
+          "required": ["kind"]
+        }
+      }
+    }
+  }
+}
