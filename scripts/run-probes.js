@@ -28,6 +28,7 @@ import {
   classifyPeakFreshness,
   shapeResult,
   buildStatus,
+  buildHealth,
   appendHistory,
 } from '../lib/probe.js';
 
@@ -36,6 +37,7 @@ const ROOT = resolve(__dirname, '..');
 const PUBLIC = resolve(ROOT, 'public');
 const STATUS_PATH = resolve(PUBLIC, 'status.json');
 const HISTORY_PATH = resolve(PUBLIC, 'history.json');
+const HEALTH_PATH = resolve(PUBLIC, 'health.json');
 
 const REQUEST_TIMEOUT_MS = 12000;
 
@@ -74,7 +76,7 @@ async function probeJsonRpc(t) {
   return shapeResult({
     id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
     status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-    detail: { kind: 'jsonrpc', method: t.rpcMethod, ...(c.detail || {}) },
+    detail: { kind: 'jsonrpc', method: t.rpcMethod, ...(c.errorCode ? { errorCode: c.errorCode } : {}), ...(c.detail || {}) },
     error: outcome.error,
   });
 }
@@ -91,7 +93,7 @@ async function probeHttp(t) {
   const rec = shapeResult({
     id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
     status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-    detail: { kind: 'http', httpStatus: outcome.status ?? null },
+    detail: { kind: 'http', httpStatus: outcome.status ?? null, ...(c.errorCode ? { errorCode: c.errorCode } : {}) },
     error: outcome.error,
   });
   // An optional, possibly-unprovisioned endpoint never drags the overall.
@@ -110,7 +112,7 @@ async function probeChainView(t) {
     record: shapeResult({
       id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
       status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-      detail: { kind: 'chainview', peakHeight: c.detail.peakHeight, synced: c.detail.synced },
+      detail: { kind: 'chainview', peakHeight: c.detail.peakHeight, synced: c.detail.synced, ...(c.errorCode ? { errorCode: c.errorCode } : {}) },
       error: outcome.error,
     }),
     peakHeight: c.detail.peakHeight,
@@ -178,6 +180,7 @@ async function main() {
         kind: 'derived', peakHeight: currentPeak,
         advancedBy: fresh.detail ? fresh.detail.advanced : null,
         ...(secondsSincePrev != null ? { secondsSincePrev: Math.round(secondsSincePrev) } : {}),
+        ...(fresh.errorCode ? { errorCode: fresh.errorCode } : {}),
       },
       error: typeof currentPeak === 'number' ? undefined : 'no coinset peak available',
     }));
@@ -194,9 +197,20 @@ async function main() {
     nextHistory.coinset[nextHistory.coinset.length - 1].peakHeight = currentPeak;
   }
 
+  // The tiny machine summary for quick agent polling — a flat {id:status} map
+  // plus overall/generatedAt, derived from the same doc so the two can't drift.
+  const healthDoc = buildHealth(statusDoc);
+
+  // Make each emitted document self-describing by referencing its committed JSON
+  // Schema via a `$schema` key (absolute URL, so it resolves off the live site).
+  // The lib stays URL-free + pure; the deploy-target URL is injected here.
+  const SCHEMA_BASE = 'https://status.dig.net';
+  const withSchema = (doc, file) => ({ $schema: `${SCHEMA_BASE}/${file}`, ...doc });
+
   await mkdir(PUBLIC, { recursive: true });
-  await writeFile(STATUS_PATH, JSON.stringify(statusDoc, null, 2) + '\n');
+  await writeFile(STATUS_PATH, JSON.stringify(withSchema(statusDoc, 'status.schema.json'), null, 2) + '\n');
   await writeFile(HISTORY_PATH, JSON.stringify(nextHistory) + '\n');
+  await writeFile(HEALTH_PATH, JSON.stringify(withSchema(healthDoc, 'health.schema.json'), null, 2) + '\n');
 
   // Console summary for the CI log.
   const line = systems.map((s) => `${s.id}=${s.status}`).join(' ');

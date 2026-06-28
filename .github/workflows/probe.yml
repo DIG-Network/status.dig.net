@@ -37,7 +37,7 @@ jobs:
           set -euo pipefail
           git config user.name  "dig-status-bot"
           git config user.email "noreply@dig.net"
-          git add public/status.json public/history.json
+          git add public/status.json public/history.json public/health.json
           if git diff --cached --quiet; then
             echo "no status change; nothing to commit"
             exit 0

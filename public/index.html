@@ -10,6 +10,9 @@
   <meta property="og:description" content="Live health and uptime for the core DIG Network systems." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://status.dig.net" />
+  <!-- Machine-readable alternates: agents should read the JSON, not scrape the DOM. -->
+  <link rel="alternate" type="application/json" href="/health.json" title="DIG Network health summary" />
+  <link rel="alternate" type="application/json" href="/status.json" title="DIG Network full status" />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='14' fill='%235800D6'/%3E%3Cpath d='M11 9h5a7 7 0 0 1 0 14h-5z' fill='none' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -35,7 +38,7 @@
 
   <main class="wrap">
     <!-- Overall banner -->
-    <section id="overall" class="overall is-loading" aria-live="polite">
+    <section id="overall" class="overall is-loading" aria-live="polite" data-testid="overall">
       <div class="overall-dot" aria-hidden="true"></div>
       <div class="overall-text">
         <h1 id="overall-title">Checking system status…</h1>

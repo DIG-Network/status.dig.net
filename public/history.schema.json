@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://status.dig.net/history.schema.json",
+  "title": "DIG Network history.json",
+  "description": "Rolling per-system health history produced by the status.dig.net probe cron and committed to public/history.json. Keyed by the same stable system id as status.json; each value is a bounded, time-ordered series of probe points (oldest first), capped at ~10 days of 5-minute samples. The coinset series additionally carries peakHeight on its points for cross-run freshness.",
+  "type": "object",
+  "additionalProperties": {
+    "description": "Time-ordered series (oldest first) of probe points for one system id.",
+    "type": "array",
+    "items": {
+      "type": "object",
+      "required": ["t", "status", "latencyMs"],
+      "additionalProperties": false,
+      "properties": {
+        "t": {
+          "description": "ISO-8601 UTC timestamp of this point (the system's checkedAt).",
+          "type": "string",
+          "format": "date-time"
+        },
+        "status": {
+          "description": "Health state at this point.",
+          "type": "string",
+          "enum": ["up", "degraded", "down"]
+        },
+        "latencyMs": {
+          "description": "Probe latency in milliseconds at this point (>= 0; 0 for derived rows).",
+          "type": "integer",
+          "minimum": 0
+        },
+        "peakHeight": {
+          "description": "(coinset series only) Chia mainnet peak block height recorded at this point, used to compute liveness on the next run.",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}

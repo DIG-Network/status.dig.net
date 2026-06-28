@@ -86,6 +86,14 @@ function renderRow(sys, series, uptime) {
   const tpl = $('#row-tpl').content.cloneNode(true);
   const row = $('.row', tpl);
   row.classList.add(`is-${sys.status}`);
+  // Stable machine hooks so an agent can select + read each row deterministically
+  // (driven from the data, not styling classes or visible text).
+  row.setAttribute('data-testid', 'system-row');
+  row.setAttribute('data-system-id', sys.id);
+  row.setAttribute('data-status', sys.status);
+  row.setAttribute('data-latency-ms', String(sys.latencyMs ?? 0));
+  if (uptime != null) row.setAttribute('data-uptime', String(uptime));
+  if (sys.detail && sys.detail.errorCode) row.setAttribute('data-error-code', sys.detail.errorCode);
   $('.status-word', row).textContent = STATUS_LABEL[sys.status] || sys.status;
   renderName($('.row-name', row), sys.name);
 
@@ -108,6 +116,9 @@ function renderRow(sys, series, uptime) {
 function setOverall(doc) {
   const el = $('#overall');
   el.className = `overall is-${doc.overall}`;
+  // Machine hooks on the banner: the rollup + when it was generated.
+  el.setAttribute('data-overall', doc.overall);
+  if (doc.generatedAt) el.setAttribute('data-generated-at', doc.generatedAt);
   const titles = {
     up: 'All systems operational',
     degraded: 'Some systems are degraded',
