@@ -18,6 +18,7 @@
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { connect as tlsConnect } from 'node:tls';
 
 import { TARGETS } from '../lib/targets.js';
 import {
@@ -26,6 +27,7 @@ import {
   classifyJsonRpc,
   classifyChainView,
   classifyPeakFreshness,
+  classifyTls,
   shapeResult,
   buildStatus,
   buildHealth,
@@ -101,6 +103,52 @@ async function probeHttp(t) {
   return rec;
 }
 
+/** Open a raw TLS connection and resolve a probe outcome the classifier
+ *  understands: { connected?, latencyMs, error?, certError? }. Used for non-HTTP
+ *  edges (relay.dig.net's NLB TLS listener). Default cert verification is ON
+ *  (rejectUnauthorized: true) so an invalid/expired cert surfaces as certError.
+ *  SNI is set so the load balancer presents the right *.dig.net cert. */
+async function timedTls(host, port) {
+  const start = Date.now();
+  return new Promise((resolveOutcome) => {
+    let settled = false;
+    const done = (outcome) => {
+      if (settled) return;
+      settled = true;
+      try { socket.destroy(); } catch { /* already closed */ }
+      resolveOutcome({ ...outcome, latencyMs: Date.now() - start });
+    };
+    const socket = tlsConnect(
+      { host, port, servername: host, rejectUnauthorized: true, timeout: REQUEST_TIMEOUT_MS },
+      // 'secureConnect' fires only after a successful handshake (incl. cert
+      // verification), so reaching here means the TLS edge + cert are valid.
+      () => done({ connected: true }),
+    );
+    socket.once('timeout', () => done({ error: 'timeout' }));
+    socket.once('error', (err) => {
+      // Node tags cert-validation failures with a `code` starting CERT_ / a few
+      // known TLS codes; treat those as certError so they map to TLS_ERROR.
+      const code = err && err.code ? String(err.code) : '';
+      const certError = /CERT|TLS|SSL|ERR_TLS/i.test(code) ||
+        /certificate|self.signed|self-signed/i.test(String(err && err.message || ''));
+      done({ error: String(err && err.message || err), certError });
+    });
+  });
+}
+
+async function probeTls(t) {
+  const outcome = await timedTls(t.host, t.port);
+  const c = classifyTls(outcome, { optional: t.optional });
+  const rec = shapeResult({
+    id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
+    status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
+    detail: { kind: 'tls', host: t.host, port: t.port, ...(c.errorCode ? { errorCode: c.errorCode } : {}) },
+    error: outcome.error,
+  });
+  if (t.optional) rec.excludeFromOverall = true;
+  return rec;
+}
+
 async function probeChainView(t) {
   const outcome = await timedFetch(t.url, {
     method: 'POST',
@@ -151,6 +199,7 @@ async function main() {
   const results = await Promise.all(independent.map(async (t) => {
     if (t.kind === 'jsonrpc') return { t, record: await probeJsonRpc(t) };
     if (t.kind === 'http') return { t, record: await probeHttp(t) };
+    if (t.kind === 'tls') return { t, record: await probeTls(t) };
     if (t.kind === 'chainview') {
       const r = await probeChainView(t);
       return { t, record: r.record, peakHeight: r.peakHeight };

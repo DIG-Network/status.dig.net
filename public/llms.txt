@@ -22,8 +22,8 @@ read the JSON directly rather than scraping the HTML.
 - `schemaVersion` (currently `1`) versions the document shape. It is bumped only on a breaking change; additive fields do not bump it. Branch on it to detect a contract break.
 - Status enum (stable): `up` (reachable + healthy), `degraded` (reachable but impaired — slow, wrong-but-live response, JSON-RPC error, not-synced, stale peak, or an unreachable optional target), `down` (unreachable / DNS / TLS / 5xx).
 - `overall` is the worst-of rollup across systems NOT marked `excludeFromOverall` (optional, not-yet-provisioned endpoints never drag the whole ecosystem down).
-- Failure codes (`detail.errorCode`, stable enum): `TIMEOUT`, `TRANSPORT`, `HTTP_5XX`, `HTTP_4XX`, `RPC_ERROR`, `RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`. Branch on this code, not the human `error` string.
-- `detail.kind` discriminates the probe family: `http`, `jsonrpc`, `chainview`, `derived`.
+- Failure codes (`detail.errorCode`, stable enum): `TIMEOUT`, `TRANSPORT`, `HTTP_5XX`, `HTTP_4XX`, `RPC_ERROR`, `RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`, `TLS_ERROR`. Branch on this code, not the human `error` string.
+- `detail.kind` discriminates the probe family: `http`, `jsonrpc`, `tls`, `chainview`, `derived`.
 
 ## Monitored systems
 
@@ -32,6 +32,7 @@ read the JSON directly rather than scraping the HTML.
 - `docs` — docs.dig.net: Docusaurus documentation site.
 - `dignet` — dig.net: marketing / entry-point site.
 - `cdn` — cdn.dig.net: §21 encrypted-chunk CDN host front (optional; excluded from overall until provisioned).
+- `relay` — relay.dig.net: NAT-traversal relay (rendezvous + circuit relay) DIG nodes connect through. Probed by a TLS handshake against the public NLB TLS edge (`wss://relay.dig.net:443`); a valid-cert handshake confirms the load balancer + cert + an in-rotation (internally health-checked) relay target are live. Optional (excluded from overall) while being provisioned.
 - `coinset` — coinset.org ChainView: Chia mainnet RPC (blockchain state / peak height) — the chain trust root.
 - `chia-mainnet` — Chia mainnet liveness, derived from coinset peak-height freshness (depends on `coinset`).
 
