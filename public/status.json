@@ -1,12 +1,12 @@
 {
   "$schema": "https://status.dig.net/status.schema.json",
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T17:12:42.111Z",
-  "overall": "down",
+  "generatedAt": "2026-06-30T17:56:29.409Z",
+  "overall": "up",
   "summary": {
-    "up": 4,
-    "degraded": 3,
-    "down": 1,
+    "up": 7,
+    "degraded": 1,
+    "down": 0,
     "total": 8
   },
   "systems": [
@@ -14,45 +14,42 @@
       "id": "rpc",
       "name": "rpc.dig.net",
       "category": "Read path",
-      "status": "down",
-      "latencyMs": 494,
-      "checkedAt": "2026-06-30T17:12:32.048Z",
+      "status": "up",
+      "latencyMs": 1112,
+      "checkedAt": "2026-06-30T17:56:19.967Z",
       "description": "DIG JSON-RPC read service (blind content retrieval).",
       "url": "https://rpc.dig.net/",
       "detail": {
         "kind": "jsonrpc",
-        "method": "dig.methods",
-        "errorCode": "HTTP_4XX"
+        "method": "dig.methods"
       }
     },
     {
       "id": "hub-api",
       "name": "hub.dig.net /v1",
       "category": "Control plane",
-      "status": "degraded",
-      "latencyMs": 174,
-      "checkedAt": "2026-06-30T17:12:31.758Z",
+      "status": "up",
+      "latencyMs": 261,
+      "checkedAt": "2026-06-30T17:56:19.366Z",
       "description": "DIGHUb REST /v1 control plane (account/store/domain lifecycle).",
       "url": "https://hub.dig.net/v1/health",
       "detail": {
         "kind": "http",
-        "httpStatus": 403,
-        "errorCode": "HTTP_4XX"
+        "httpStatus": 200
       }
     },
     {
       "id": "docs",
       "name": "docs.dig.net",
       "category": "Sites",
-      "status": "degraded",
-      "latencyMs": 226,
-      "checkedAt": "2026-06-30T17:12:31.844Z",
+      "status": "up",
+      "latencyMs": 202,
+      "checkedAt": "2026-06-30T17:56:19.121Z",
       "description": "Docusaurus documentation site (HTTP 200 + cert).",
       "url": "https://docs.dig.net/",
       "detail": {
         "kind": "http",
-        "httpStatus": 403,
-        "errorCode": "HTTP_4XX"
+        "httpStatus": 200
       }
     },
     {
@@ -60,8 +57,8 @@
       "name": "dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 246,
-      "checkedAt": "2026-06-30T17:12:31.866Z",
+      "latencyMs": 175,
+      "checkedAt": "2026-06-30T17:56:19.099Z",
       "description": "Marketing site (HTTP 200 + cert).",
       "url": "https://dig.net/",
       "detail": {
@@ -74,8 +71,8 @@
       "name": "cdn.dig.net",
       "category": "Read path",
       "status": "degraded",
-      "latencyMs": 10491,
-      "checkedAt": "2026-06-30T17:12:42.110Z",
+      "latencyMs": 10489,
+      "checkedAt": "2026-06-30T17:56:29.409Z",
       "description": "§21 encrypted-chunk CDN (host front).",
       "url": "https://cdn.dig.net/",
       "detail": {
@@ -91,8 +88,8 @@
       "name": "apt.dig.net",
       "category": "Distribution",
       "status": "up",
-      "latencyMs": 327,
-      "checkedAt": "2026-06-30T17:12:31.948Z",
+      "latencyMs": 214,
+      "checkedAt": "2026-06-30T17:56:19.136Z",
       "description": "Ubuntu/Debian APT repository (apt install the DIG ecosystem).",
       "url": "https://apt.dig.net/",
       "detail": {
@@ -106,16 +103,16 @@
       "name": "coinset.org ChainView",
       "category": "Chia",
       "status": "up",
-      "latencyMs": 549,
-      "checkedAt": "2026-06-30T17:12:32.171Z",
+      "latencyMs": 513,
+      "checkedAt": "2026-06-30T17:56:19.436Z",
       "description": "Chia mainnet RPC (blockchain state / peak height) — the chain trust root.",
       "url": "https://api.coinset.org/get_blockchain_state",
       "detail": {
         "kind": "chainview",
-        "peakHeight": 8941784,
+        "peakHeight": 8941948,
         "synced": true
       },
-      "peakHeight": 8941784
+      "peakHeight": 8941948
     },
     {
       "id": "chia-mainnet",
@@ -123,13 +120,13 @@
       "category": "Chia",
       "status": "up",
       "latencyMs": 0,
-      "checkedAt": "2026-06-30T17:12:42.111Z",
+      "checkedAt": "2026-06-30T17:56:29.409Z",
       "description": "Mainnet liveness — derived from coinset peak-height freshness.",
       "detail": {
         "kind": "derived",
-        "peakHeight": 8941784,
-        "advancedBy": 139,
-        "secondsSincePrev": 2769
+        "peakHeight": 8941948,
+        "advancedBy": 164,
+        "secondsSincePrev": 2637
       }
     }
   ]
