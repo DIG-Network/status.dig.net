@@ -61,7 +61,8 @@
         "RPC_MALFORMED",
         "NOT_SYNCED",
         "NO_PEAK",
-        "STALE_PEAK"
+        "STALE_PEAK",
+        "TLS_ERROR"
       ]
     },
     "system": {
@@ -110,12 +111,20 @@
             "kind": {
               "description": "Probe family discriminator.",
               "type": "string",
-              "enum": ["http", "jsonrpc", "chainview", "derived"]
+              "enum": ["http", "jsonrpc", "tls", "chainview", "derived"]
             },
             "errorCode": { "$ref": "#/$defs/errorCode" },
             "httpStatus": {
               "description": "(kind=http) HTTP status code, or null on a transport failure.",
               "type": ["integer", "null"]
+            },
+            "host": {
+              "description": "(kind=tls) The host the TLS handshake was attempted against.",
+              "type": "string"
+            },
+            "port": {
+              "description": "(kind=tls) The port the TLS handshake was attempted against.",
+              "type": "integer"
             },
             "method": {
               "description": "(kind=jsonrpc) The JSON-RPC method probed.",

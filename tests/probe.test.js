@@ -13,6 +13,7 @@ import {
   classifyJsonRpc,
   classifyChainView,
   classifyPeakFreshness,
+  classifyTls,
   shapeResult,
   buildStatus,
   buildHealth,
@@ -108,6 +109,52 @@ test('classifyChainView: node reports not synced is degraded', () => {
 
 test('classifyChainView: missing peak is down', () => {
   assert.equal(classifyChainView({ status: 200, body: {}, latencyMs: 110 }).status, STATUS.DOWN);
+});
+
+// ---------------------------------------------------------------------------
+// classifyTls() — a raw TLS-handshake reachability probe. Used for endpoints
+// that are NOT HTTP at the edge — e.g. relay.dig.net, whose public surface is
+// the NLB TLS listener fronting the relay WebSocket (wss://relay.dig.net:443).
+// A successful TLS handshake (with a valid cert, enforced by the runner) proves
+// DNS + the load balancer + the cert + an in-rotation target are all live; a
+// connect/handshake failure is down; a cert-validation failure is down with a
+// TLS_ERROR code.
+// ---------------------------------------------------------------------------
+test('classifyTls: a successful handshake is up', () => {
+  assert.deepEqual(classifyTls({ connected: true, latencyMs: 60 }), { status: STATUS.UP, ok: true });
+});
+
+test('classifyTls: a slow-but-successful handshake is degraded', () => {
+  assert.equal(classifyTls({ connected: true, latencyMs: 9000 }).status, STATUS.DEGRADED);
+});
+
+test('classifyTls: a connect/handshake failure (no connection) is down', () => {
+  const r = classifyTls({ error: 'ECONNREFUSED' });
+  assert.equal(r.status, STATUS.DOWN);
+  assert.equal(r.ok, false);
+});
+
+test('classifyTls: a timeout carries errorCode TIMEOUT', () => {
+  assert.equal(classifyTls({ error: 'timeout' }).errorCode, ERROR_CODE.TIMEOUT);
+});
+
+test('classifyTls: a cert-validation failure carries errorCode TLS_ERROR', () => {
+  const r = classifyTls({ error: 'unable to verify the first certificate', certError: true });
+  assert.equal(r.status, STATUS.DOWN);
+  assert.equal(r.errorCode, ERROR_CODE.TLS_ERROR);
+});
+
+test('classifyTls: a non-cert transport failure carries errorCode TRANSPORT', () => {
+  assert.equal(classifyTls({ error: 'ECONNREFUSED' }).errorCode, ERROR_CODE.TRANSPORT);
+});
+
+test('classifyTls: an unreachable OPTIONAL target is degraded, not down', () => {
+  const r = classifyTls({ error: 'ECONNREFUSED' }, { optional: true });
+  assert.equal(r.status, STATUS.DEGRADED);
+});
+
+test('classifyTls: a healthy handshake has no errorCode', () => {
+  assert.equal(classifyTls({ connected: true, latencyMs: 60 }).errorCode, undefined);
 });
 
 // ---------------------------------------------------------------------------

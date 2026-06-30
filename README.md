@@ -20,6 +20,7 @@ grounded in the ecosystem dependency map (`SYSTEM.md`):
 | **docs.dig.net** | HTTP 200 + cert | Documentation site |
 | **dig.net** | HTTP 200 + cert | Marketing / entry-point site |
 | **cdn.dig.net** | HTTP reachable + cert (optional) | §21 encrypted-chunk CDN host front |
+| **relay.dig.net** | TLS handshake + cert (`wss://relay.dig.net:443`, optional) | NAT-traversal relay DIG nodes connect through |
 | **coinset.org ChainView** | `get_blockchain_state` (peak height + sync) | Chia mainnet RPC — the chain trust root |
 | **Chia mainnet** | derived from coinset peak freshness | Is the chain (and our view of it) advancing? |
 
@@ -51,7 +52,7 @@ worst-of across systems not marked `excludeFromOverall`.
 
 **Stable failure-code enum** (`detail.errorCode`, branch on this not the human
 `error` string): `TIMEOUT`, `TRANSPORT`, `HTTP_5XX`, `HTTP_4XX`, `RPC_ERROR`,
-`RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`.
+`RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`, `TLS_ERROR`.
 
 **DOM hooks** for driving the rendered page: `#overall` carries `data-testid="overall"`,
 `data-overall`, `data-generated-at`; each row carries `data-testid="system-row"`,
@@ -65,6 +66,13 @@ and the schema/contract conformance is guarded in [`tests/schema.test.js`](tests
   fetch verification → surfaces as down.
 - **JSON-RPC**: a `result` = up; a JSON-RPC `error` object = degraded (alive but
   rejected the probe); non-2xx transport = down.
+- **TLS** (`relay.dig.net`): a valid-cert TLS handshake = up; a connect/handshake
+  failure = down (`TRANSPORT`/`TIMEOUT`); a cert-validation failure = down
+  (`TLS_ERROR`). The relay's public edge is an NLB TLS listener fronting the relay
+  WebSocket — not an HTTP server — so it's probed with a raw TLS handshake rather
+  than an HTTP GET. The relay's own `/health` (`{status, connected_peers,
+  uptime_secs, version}`) is internal-only (VPC-scoped, the NLB target-group
+  check); a live TLS edge with an in-rotation target transitively confirms it.
 - **ChainView**: reachable + a peak height + synced = up; node reports
   not-synced = degraded; no peak = down.
 - **Peak freshness**: peak advanced since the last probe = up; no advance for

@@ -86,6 +86,7 @@ function sampleSystems() {
   return [
     shapeResult({ id: 'rpc', name: 'rpc.dig.net', category: 'Read path', status: STATUS.UP, latencyMs: 120, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'jsonrpc', method: 'dig.methods' }, url: 'https://rpc.dig.net/', description: 'RPC' }),
     { ...shapeResult({ id: 'cdn', name: 'cdn.dig.net', category: 'Read path', status: STATUS.DEGRADED, latencyMs: 9000, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'http', httpStatus: null, errorCode: 'TRANSPORT' }, error: 'fetch failed' }), excludeFromOverall: true },
+    shapeResult({ id: 'relay', name: 'relay.dig.net', category: 'Network', status: STATUS.UP, latencyMs: 70, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'tls', host: 'relay.dig.net', port: 443 }, url: 'wss://relay.dig.net:443', description: 'NAT-traversal relay' }),
     shapeResult({ id: 'coinset', name: 'coinset.org ChainView', category: 'Chia', status: STATUS.UP, latencyMs: 200, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'chainview', peakHeight: 8933589, synced: true } }),
     shapeResult({ id: 'chia-mainnet', name: 'Chia mainnet', category: 'Chia', status: STATUS.UP, latencyMs: 0, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'derived', peakHeight: 8933589, advancedBy: 5, secondsSincePrev: 90 } }),
   ];
@@ -102,6 +103,18 @@ test('status.schema.json: a document WITH the injected $schema key still validat
   const schema = loadSchema('status.schema.json');
   const doc = { $schema: 'https://status.dig.net/status.schema.json', ...buildStatus({ generatedAt: '2026-06-28T00:00:00.000Z', systems: sampleSystems() }) };
   assert.deepEqual(validate(schema, doc), []);
+});
+
+test('status.schema.json: a tls-kind record (incl. TLS_ERROR) validates', () => {
+  const schema = loadSchema('status.schema.json');
+  const doc = buildStatus({
+    generatedAt: '2026-06-28T00:00:00.000Z',
+    systems: [
+      shapeResult({ id: 'relay', name: 'relay.dig.net', category: 'Network', status: STATUS.UP, latencyMs: 70, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'tls', host: 'relay.dig.net', port: 443 }, url: 'wss://relay.dig.net:443' }),
+      shapeResult({ id: 'relay2', name: 'relay2', category: 'Network', status: STATUS.DOWN, latencyMs: 12000, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'tls', host: 'relay.dig.net', port: 443, errorCode: 'TLS_ERROR' }, error: 'cert invalid' }),
+    ],
+  });
+  assert.deepEqual(validate(schema, doc), [], validate(schema, doc).join('\n'));
 });
 
 test('status.schema.json: pins schemaVersion to SCHEMA_VERSION', () => {
