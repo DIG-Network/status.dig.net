@@ -1,12 +1,12 @@
 {
   "$schema": "https://status.dig.net/status.schema.json",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T11:46:41.822Z",
-  "overall": "down",
+  "generatedAt": "2026-07-01T12:44:26.688Z",
+  "overall": "up",
   "summary": {
-    "up": 6,
+    "up": 8,
     "degraded": 1,
-    "down": 2,
+    "down": 0,
     "total": 9
   },
   "systems": [
@@ -15,8 +15,8 @@
       "name": "rpc.dig.net",
       "category": "Read path",
       "status": "up",
-      "latencyMs": 1119,
-      "checkedAt": "2026-07-01T11:46:32.392Z",
+      "latencyMs": 1069,
+      "checkedAt": "2026-07-01T12:44:17.205Z",
       "description": "DIG JSON-RPC read service (blind content retrieval).",
       "url": "https://rpc.dig.net/",
       "detail": {
@@ -29,8 +29,8 @@
       "name": "hub.dig.net /v1",
       "category": "Control plane",
       "status": "up",
-      "latencyMs": 433,
-      "checkedAt": "2026-07-01T11:46:31.923Z",
+      "latencyMs": 368,
+      "checkedAt": "2026-07-01T12:44:16.712Z",
       "description": "DIGHUb REST /v1 control plane (account/store/domain lifecycle).",
       "url": "https://hub.dig.net/v1/health",
       "detail": {
@@ -43,8 +43,8 @@
       "name": "docs.dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 286,
-      "checkedAt": "2026-07-01T11:46:31.617Z",
+      "latencyMs": 93,
+      "checkedAt": "2026-07-01T12:44:16.290Z",
       "description": "Docusaurus documentation site (HTTP 200 + cert).",
       "url": "https://docs.dig.net/",
       "detail": {
@@ -57,8 +57,8 @@
       "name": "dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 228,
-      "checkedAt": "2026-07-01T11:46:31.560Z",
+      "latencyMs": 162,
+      "checkedAt": "2026-07-01T12:44:16.360Z",
       "description": "Marketing site (HTTP 200 + cert).",
       "url": "https://dig.net/",
       "detail": {
@@ -71,8 +71,8 @@
       "name": "cdn.dig.net",
       "category": "Read path",
       "status": "degraded",
-      "latencyMs": 10489,
-      "checkedAt": "2026-07-01T11:46:41.822Z",
+      "latencyMs": 10492,
+      "checkedAt": "2026-07-01T12:44:26.688Z",
       "description": "§21 encrypted-chunk CDN (host front).",
       "url": "https://cdn.dig.net/",
       "detail": {
@@ -88,8 +88,8 @@
       "name": "apt.dig.net",
       "category": "Distribution",
       "status": "up",
-      "latencyMs": 397,
-      "checkedAt": "2026-07-01T11:46:31.731Z",
+      "latencyMs": 302,
+      "checkedAt": "2026-07-01T12:44:16.500Z",
       "description": "Ubuntu/Debian APT repository (apt install the DIG ecosystem).",
       "url": "https://apt.dig.net/",
       "detail": {
@@ -103,8 +103,8 @@
       "name": "relay.dig.net",
       "category": "Network",
       "status": "up",
-      "latencyMs": 372,
-      "checkedAt": "2026-07-01T11:46:31.707Z",
+      "latencyMs": 316,
+      "checkedAt": "2026-07-01T12:44:16.514Z",
       "description": "NAT-traversal relay (rendezvous + circuit relay) DIG nodes connect through.",
       "url": "wss://relay.dig.net:443",
       "detail": {
@@ -118,33 +118,32 @@
       "id": "coinset",
       "name": "coinset.org ChainView",
       "category": "Chia",
-      "status": "down",
-      "latencyMs": 668,
-      "checkedAt": "2026-07-01T11:46:32.003Z",
+      "status": "up",
+      "latencyMs": 605,
+      "checkedAt": "2026-07-01T12:44:16.804Z",
       "description": "Chia mainnet RPC (blockchain state / peak height) — the chain trust root.",
       "url": "https://api.coinset.org/get_blockchain_state",
       "detail": {
         "kind": "chainview",
-        "peakHeight": null,
-        "synced": null,
-        "errorCode": "HTTP_5XX"
-      }
+        "peakHeight": 8945558,
+        "synced": true
+      },
+      "peakHeight": 8945558
     },
     {
       "id": "chia-mainnet",
       "name": "Chia mainnet",
       "category": "Chia",
-      "status": "down",
+      "status": "up",
       "latencyMs": 0,
-      "checkedAt": "2026-07-01T11:46:41.822Z",
+      "checkedAt": "2026-07-01T12:44:26.688Z",
       "description": "Mainnet liveness — derived from coinset peak-height freshness.",
       "detail": {
         "kind": "derived",
-        "peakHeight": null,
-        "advancedBy": null,
-        "secondsSincePrev": 3823
-      },
-      "error": "no coinset peak available"
+        "peakHeight": 8945558,
+        "advancedBy": 391,
+        "secondsSincePrev": 7288
+      }
     }
   ]
 }
