@@ -1,8 +1,8 @@
 {
   "$schema": "https://status.dig.net/health.schema.json",
   "schemaVersion": 1,
-  "overall": "up",
-  "generatedAt": "2026-07-01T10:43:08.678Z",
+  "overall": "down",
+  "generatedAt": "2026-07-01T11:46:41.822Z",
   "systems": {
     "rpc": "up",
     "hub-api": "up",
@@ -11,7 +11,7 @@
     "cdn": "degraded",
     "apt": "up",
     "relay": "up",
-    "coinset": "up",
-    "chia-mainnet": "up"
+    "coinset": "down",
+    "chia-mainnet": "down"
   }
 }
