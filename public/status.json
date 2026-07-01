@@ -1,7 +1,7 @@
 {
   "$schema": "https://status.dig.net/status.schema.json",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-01T13:40:08.032Z",
+  "generatedAt": "2026-07-01T14:38:03.479Z",
   "overall": "up",
   "summary": {
     "up": 8,
@@ -15,8 +15,8 @@
       "name": "rpc.dig.net",
       "category": "Read path",
       "status": "up",
-      "latencyMs": 469,
-      "checkedAt": "2026-07-01T13:39:57.950Z",
+      "latencyMs": 486,
+      "checkedAt": "2026-07-01T14:37:53.414Z",
       "description": "DIG JSON-RPC read service (blind content retrieval).",
       "url": "https://rpc.dig.net/",
       "detail": {
@@ -29,8 +29,8 @@
       "name": "hub.dig.net /v1",
       "category": "Control plane",
       "status": "up",
-      "latencyMs": 416,
-      "checkedAt": "2026-07-01T13:39:58.314Z",
+      "latencyMs": 290,
+      "checkedAt": "2026-07-01T14:37:53.466Z",
       "description": "DIGHUb REST /v1 control plane (account/store/domain lifecycle).",
       "url": "https://hub.dig.net/v1/health",
       "detail": {
@@ -43,8 +43,8 @@
       "name": "docs.dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 62,
-      "checkedAt": "2026-07-01T13:39:57.604Z",
+      "latencyMs": 195,
+      "checkedAt": "2026-07-01T14:37:53.180Z",
       "description": "Docusaurus documentation site (HTTP 200 + cert).",
       "url": "https://docs.dig.net/",
       "detail": {
@@ -57,8 +57,8 @@
       "name": "dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 115,
-      "checkedAt": "2026-07-01T13:39:57.661Z",
+      "latencyMs": 246,
+      "checkedAt": "2026-07-01T14:37:53.236Z",
       "description": "Marketing site (HTTP 200 + cert).",
       "url": "https://dig.net/",
       "detail": {
@@ -71,8 +71,8 @@
       "name": "cdn.dig.net",
       "category": "Read path",
       "status": "degraded",
-      "latencyMs": 10492,
-      "checkedAt": "2026-07-01T13:40:08.032Z",
+      "latencyMs": 10491,
+      "checkedAt": "2026-07-01T14:38:03.479Z",
       "description": "§21 encrypted-chunk CDN (host front).",
       "url": "https://cdn.dig.net/",
       "detail": {
@@ -88,8 +88,8 @@
       "name": "apt.dig.net",
       "category": "Distribution",
       "status": "up",
-      "latencyMs": 123,
-      "checkedAt": "2026-07-01T13:39:57.665Z",
+      "latencyMs": 339,
+      "checkedAt": "2026-07-01T14:37:53.329Z",
       "description": "Ubuntu/Debian APT repository (apt install the DIG ecosystem).",
       "url": "https://apt.dig.net/",
       "detail": {
@@ -103,8 +103,8 @@
       "name": "relay.dig.net",
       "category": "Network",
       "status": "up",
-      "latencyMs": 388,
-      "checkedAt": "2026-07-01T13:39:57.930Z",
+      "latencyMs": 341,
+      "checkedAt": "2026-07-01T14:37:53.331Z",
       "description": "NAT-traversal relay (rendezvous + circuit relay) DIG nodes connect through.",
       "url": "wss://relay.dig.net:443",
       "detail": {
@@ -119,16 +119,16 @@
       "name": "coinset.org ChainView",
       "category": "Chia",
       "status": "up",
-      "latencyMs": 272,
-      "checkedAt": "2026-07-01T13:39:57.815Z",
+      "latencyMs": 566,
+      "checkedAt": "2026-07-01T14:37:53.558Z",
       "description": "Chia mainnet RPC (blockchain state / peak height) — the chain trust root.",
       "url": "https://api.coinset.org/get_blockchain_state",
       "detail": {
         "kind": "chainview",
-        "peakHeight": 8945756,
+        "peakHeight": 8945918,
         "synced": true
       },
-      "peakHeight": 8945756
+      "peakHeight": 8945918
     },
     {
       "id": "chia-mainnet",
@@ -136,13 +136,13 @@
       "category": "Chia",
       "status": "up",
       "latencyMs": 0,
-      "checkedAt": "2026-07-01T13:40:08.032Z",
+      "checkedAt": "2026-07-01T14:38:03.479Z",
       "description": "Mainnet liveness — derived from coinset peak-height freshness.",
       "detail": {
         "kind": "derived",
-        "peakHeight": 8945756,
-        "advancedBy": 198,
-        "secondsSincePrev": 3351
+        "peakHeight": 8945918,
+        "advancedBy": 162,
+        "secondsSincePrev": 3486
       }
     }
   ]
