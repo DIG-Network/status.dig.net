@@ -12,12 +12,19 @@
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://status.dig.net/" />
   <meta property="og:site_name" content="DIG Network Status" />
-  <meta property="og:image" content="https://status.dig.net/og-image.svg" />
-  <meta property="og:image:alt" content="DIG Network Status wordmark" />
-  <meta name="twitter:card" content="summary" />
+  <!-- Raster (PNG) social card: Twitter/Facebook/Slack/Discord/LinkedIn do not
+       render SVG OG images, so the canonical og:image is the 1200x630 PNG.
+       (og-image.svg is kept as the vector source it is generated from.) -->
+  <meta property="og:image" content="https://status.dig.net/og-image.png" />
+  <meta property="og:image:type" content="image/png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="DIG Network Status — live health and uptime for the core DIG Network systems." />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="DIG Network Status" />
   <meta name="twitter:description" content="Live health and uptime for the core DIG Network systems." />
-  <meta name="twitter:image" content="https://status.dig.net/og-image.svg" />
+  <meta name="twitter:image" content="https://status.dig.net/og-image.png" />
+  <meta name="twitter:image:alt" content="DIG Network Status — live health and uptime for the core DIG Network systems." />
   <!-- Machine-readable alternates: agents should read the JSON, not scrape the DOM. -->
   <link rel="alternate" type="application/json" href="/health.json" title="DIG Network health summary" />
   <link rel="alternate" type="application/json" href="/status.json" title="DIG Network full status" />

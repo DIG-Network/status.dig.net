@@ -122,7 +122,12 @@ the normal build → deploy path.
 ## Run locally
 
 ```bash
-npm test            # run the unit tests (node --test) — probe logic + schema conformance
+npm test            # unit tests (node --test) — probe logic + schema conformance
+                    #   + frontend-baseline contracts (llms.txt / sitemap.xml /
+                    #   robots.txt existence + per-page SEO tags)
+npm run test:a11y   # WCAG 2.2 AA audit (axe-core over the built dashboard at
+                    #   desktop + mobile) — runs `npm run build` output via
+                    #   scripts/serve-dist.mjs; needs `npx playwright install chromium`
 npm run probe       # probe live endpoints -> public/{status,history,health}.json
 npm run serve       # static server on http://localhost:4173 (serves public/)
 # one-liner:
@@ -130,6 +135,19 @@ npm run probe && npm run serve
 ```
 
 `npm run build` copies `public/` → `dist/` (the deploy artifact).
+
+## CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on push + PR to
+`main` (skipped on the probe cron's `[skip ci]` refresh commits):
+
+- **unit** — `node --test`: probe classification, schema/contract conformance,
+  and the frontend-baseline contracts (that `llms.txt`, `sitemap.xml`,
+  `robots.txt`, and the per-page SEO/OG/JSON-LD tags exist and are well-formed —
+  so a machine entry point or SEO tag can never silently go missing/stale).
+- **a11y** — the axe-core **WCAG 2.2 AA** audit over the built, hydrated
+  dashboard at desktop + mobile viewports, asserting **zero violations**, plus
+  keyboard/skip-link + ARIA-landmark checks.
 
 ## Deploy
 

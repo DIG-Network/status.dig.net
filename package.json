@@ -6,11 +6,17 @@
   "description": "DIG Network ecosystem health & status dashboard (status.dig.net) — server-side probes + static dashboard",
   "scripts": {
     "test": "node --test",
+    "test:a11y": "playwright test --config=playwright.config.mjs",
     "probe": "node scripts/run-probes.js",
     "build": "node scripts/build.js",
     "serve": "node scripts/serve.js"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.12.1",
+    "@playwright/test": "^1.61.1",
+    "playwright": "^1.61.1"
   }
 }

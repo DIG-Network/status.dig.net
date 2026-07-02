@@ -1,0 +1,66 @@
+name: ci
+
+# Verifies status.dig.net before it deploys: the pure unit suite (probe
+# classification + schema/contract conformance + the frontend-baseline
+# contracts — llms.txt / sitemap.xml / robots.txt existence + per-page SEO
+# tags) and the WCAG 2.2 AA accessibility audit (axe-core over the built,
+# hydrated dashboard at desktop + mobile viewports).
+#
+# This is the CI gate the frontend baseline requires: a real automated AT tier
+# (not just a linter) plus a source-level guard that the machine entry points
+# and SEO meta never silently go missing or stale.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+# The probe cron commits with "[skip ci]", so refresh commits do not re-run
+# this suite; a real code/content change (or a PR) does.
+concurrency:
+  group: status-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    name: unit tests (probe + schema + frontend-baseline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+      # No runtime deps; the unit suite is pure `node --test`. Install only if a
+      # lockfile is present (dev deps for the a11y suite live here too).
+      - name: install
+        run: npm ci || npm install
+      - name: unit tests
+        run: node --test
+
+  a11y:
+    name: a11y (WCAG 2.2 AA, axe-core, desktop + mobile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 20
+      - name: install
+        run: npm ci || npm install
+      - name: install Playwright chromium
+        run: npx playwright install --with-deps chromium
+      - name: build static site (public/ -> dist/)
+        run: node scripts/build.js
+      - name: axe WCAG 2.2 AA audit
+        run: npx playwright test --config=playwright.config.mjs
+      - name: upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
