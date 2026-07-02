@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  status.dig.net has a single public page (the dashboard at /). This file is
+  kept in source (public/sitemap.xml) so scripts/build.js carries it straight
+  into dist/ and every deploy republishes it. Update <lastmod> when the public
+  page or its content model changes.
+-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://status.dig.net/</loc>
+    <lastmod>2026-07-01</lastmod>
+    <changefreq>always</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>

@@ -24,7 +24,11 @@
   /* Text (on light) */
   --fg1: #14122B;
   --fg2: #4B4878;
-  --fg3: #8A87A8;
+  /* WCAG 2.2 AA requires >=4.5:1 for normal-size text; #8A87A8 measured 3.44:1
+     on white and failed an automated axe pass (color-contrast) on the row
+     description/uptime/latency text, which renders at 13px (not "large text"
+     eligible for the lower 3:1 threshold). #666391 measures 5.59:1. */
+  --fg3: #666391;
 
   /* Semantic status (mirror marketing tokens, tuned for light bg) */
   --up: #16B27A;
@@ -62,6 +66,38 @@ a:hover { text-decoration: underline; }
 .muted { color: var(--fg3); }
 .small { font-size: 13px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* ---------- skip link + focus visibility (WCAG 2.2 AA: 2.4.1, 2.4.11) ---------- */
+.skip-link {
+  position: absolute;
+  top: -48px;
+  left: 12px;
+  z-index: 100;
+  background: var(--violet);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  transition: top .15s ease;
+}
+.skip-link:focus {
+  top: 12px;
+  text-decoration: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skip-link { transition: none; }
+}
+/* A single consistent visible-focus treatment for every interactive element,
+   including inside the sticky header and footer. Uses :focus-visible so mouse
+   clicks don't show a ring but keyboard/AT navigation always does. */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--violet);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+main:focus-visible { outline: none; } /* skip-link target: no ring on the landmark itself */
 
 /* ---------- header ---------- */
 .site-header { border-bottom: 1px solid var(--border); background: rgba(255,255,255,.8); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 10; }

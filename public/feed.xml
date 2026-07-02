@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <id>https://status.dig.net/</id>
+  <title>DIG Network Status</title>
+  <subtitle>Status-change history for the core DIG Network systems.</subtitle>
+  <updated>2026-07-02T01:18:38.343Z</updated>
+  <link rel="self" type="application/atom+xml" href="https://status.dig.net/feed.xml" />
+  <link rel="alternate" type="text/html" href="https://status.dig.net/" />
+  <entry>
+    <id>https://status.dig.net/#cdn-2026-06-28T22:10:00.589Z</id>
+    <title>cdn.dig.net: degraded</title>
+    <updated>2026-06-28T22:10:00.589Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">cdn.dig.net is now degraded (was down).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#hub-api-2026-06-30T17:12:31.758Z</id>
+    <title>hub.dig.net /v1: degraded</title>
+    <updated>2026-06-30T17:12:31.758Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">hub.dig.net /v1 is now degraded (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#docs-2026-06-30T17:12:31.844Z</id>
+    <title>docs.dig.net: degraded</title>
+    <updated>2026-06-30T17:12:31.844Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">docs.dig.net is now degraded (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#rpc-2026-06-30T17:12:32.048Z</id>
+    <title>rpc.dig.net: down</title>
+    <updated>2026-06-30T17:12:32.048Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">rpc.dig.net is now down (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#docs-2026-06-30T17:56:19.121Z</id>
+    <title>docs.dig.net: up</title>
+    <updated>2026-06-30T17:56:19.121Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">docs.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#hub-api-2026-06-30T17:56:19.366Z</id>
+    <title>hub.dig.net /v1: up</title>
+    <updated>2026-06-30T17:56:19.366Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">hub.dig.net /v1 recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#rpc-2026-06-30T17:56:19.967Z</id>
+    <title>rpc.dig.net: up</title>
+    <updated>2026-06-30T17:56:19.967Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">rpc.dig.net recovered (down -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#relay-2026-06-30T23:50:27.534Z</id>
+    <title>relay.dig.net: degraded</title>
+    <updated>2026-06-30T23:50:27.534Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">relay.dig.net is now degraded (was down).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#relay-2026-07-01T01:20:52.369Z</id>
+    <title>relay.dig.net: up</title>
+    <updated>2026-07-01T01:20:52.369Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">relay.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#coinset-2026-07-01T11:46:32.003Z</id>
+    <title>coinset.org ChainView: down</title>
+    <updated>2026-07-01T11:46:32.003Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">coinset.org ChainView is now down (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#chia-mainnet-2026-07-01T11:46:41.822Z</id>
+    <title>Chia mainnet: down</title>
+    <updated>2026-07-01T11:46:41.822Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">Chia mainnet is now down (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#coinset-2026-07-01T12:44:16.804Z</id>
+    <title>coinset.org ChainView: up</title>
+    <updated>2026-07-01T12:44:16.804Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">coinset.org ChainView recovered (down -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#chia-mainnet-2026-07-01T12:44:26.688Z</id>
+    <title>Chia mainnet: up</title>
+    <updated>2026-07-01T12:44:26.688Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">Chia mainnet recovered (down -&gt; up).</content>
+  </entry>
+</feed>
