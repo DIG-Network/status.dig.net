@@ -55,6 +55,28 @@ test('index.html: Open Graph + Twitter card tags', () => {
   assert.match(html, /name="twitter:description"/);
 });
 
+test('index.html: social card is a raster (PNG) large-image card with dimensions + alt', () => {
+  // Twitter/Facebook/Slack/Discord/LinkedIn do NOT render SVG OG images, so the
+  // canonical og:image / twitter:image MUST be the raster PNG, with declared
+  // dimensions + alt text. Guards against a regression back to the SVG.
+  const html = read('index.html');
+  assert.match(html, /property="og:image" content="https:\/\/status\.dig\.net\/og-image\.png"/);
+  assert.match(html, /property="og:image:width" content="1200"/);
+  assert.match(html, /property="og:image:height" content="630"/);
+  assert.match(html, /property="og:image:alt" content="[^"]{10,}"/);
+  assert.match(html, /name="twitter:card" content="summary_large_image"/);
+  assert.match(html, /name="twitter:image" content="https:\/\/status\.dig\.net\/og-image\.png"/);
+});
+
+test('public/og-image.png exists and is a real 1200x630 PNG', () => {
+  const buf = readFileSync(resolve(PUBLIC, 'og-image.png'));
+  // PNG magic number.
+  assert.deepEqual([...buf.subarray(0, 8)], [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+  // IHDR width/height are big-endian uint32 at byte offsets 16 and 20.
+  assert.equal(buf.readUInt32BE(16), 1200, 'og-image.png width should be 1200');
+  assert.equal(buf.readUInt32BE(20), 630, 'og-image.png height should be 630');
+});
+
 test('index.html: JSON-LD structured data present and valid JSON', () => {
   const html = read('index.html');
   const m = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);

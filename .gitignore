@@ -3,3 +3,8 @@ dist/
 out/
 .DS_Store
 *.log
+
+# Playwright a11y suite output
+test-results/
+playwright-report/
+.playwright/
