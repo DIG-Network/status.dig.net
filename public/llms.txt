@@ -16,6 +16,9 @@ read the JSON directly rather than scraping the HTML.
 - [status.schema.json](https://status.dig.net/status.schema.json): JSON Schema for status.json (versioned by `schemaVersion`).
 - [health.schema.json](https://status.dig.net/health.schema.json): JSON Schema for health.json.
 - [history.schema.json](https://status.dig.net/history.schema.json): JSON Schema for history.json.
+- [feed.xml](https://status.dig.net/feed.xml): Atom feed of status TRANSITIONS (one entry per state change — up/degraded/down — not per probe sample). Subscribe for incident/recovery notifications instead of polling and diffing history.json.
+- [sitemap.xml](https://status.dig.net/sitemap.xml): Standard XML sitemap (this site has one public page).
+- [robots.txt](https://status.dig.net/robots.txt): Crawl policy — full indexing allowed, points at sitemap.xml.
 
 ## Contract
 

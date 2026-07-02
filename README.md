@@ -39,7 +39,10 @@ Schema.
 | [`/health.json`](public/health.json) | Tiny summary for quick polling: `{schemaVersion, overall, generatedAt, systems:{id:status}}` | [`/health.schema.json`](public/health.schema.json) |
 | [`/status.json`](public/status.json) | Full snapshot: overall, summary counts, per-system records (status, latency, detail, `errorCode`) | [`/status.schema.json`](public/status.schema.json) |
 | [`/history.json`](public/history.json) | Rolling per-system history series (keyed by id) | [`/history.schema.json`](public/history.schema.json) |
+| [`/feed.xml`](public/feed.xml) | Atom feed of status TRANSITIONS (one entry per state change, not per sample) — subscribe instead of polling `history.json` | — |
 | [`/llms.txt`](public/llms.txt) | Machine entry point pointing at all of the above + the contract | — |
+| [`/sitemap.xml`](public/sitemap.xml) | Standard XML sitemap (one public page) | — |
+| [`/robots.txt`](public/robots.txt) | Crawl policy — full indexing allowed, points at `sitemap.xml` | — |
 
 Each emitted document carries a `$schema` key referencing its schema, so it is
 self-describing. The schemas are pinned to **`schemaVersion`** (currently `1`),
@@ -86,27 +89,32 @@ and the schema/contract conformance is guarded in [`tests/schema.test.js`](tests
 ```
 GitHub Actions cron (every 5 min)
   └─ node scripts/run-probes.js     (server-side: fetch each endpoint)
-       └─ lib/probe.js              (pure classify + shape + history roll)
+       └─ lib/probe.js              (pure classify + shape + history roll + feed)
             ├─ public/status.json   (current snapshot, committed)
             ├─ public/history.json  (rolling per-system series, committed)
-            └─ public/health.json   (tiny {id:status} summary, committed)
+            ├─ public/health.json   (tiny {id:status} summary, committed)
+            └─ public/feed.xml      (Atom feed of status transitions, committed)
                  ▲
 static site (public/) fetches them ──┘  → renders dashboard (app.js)
   └─ scripts/build.js: public/ → dist/  → deploy.yml: S3 sync + CloudFront
 ```
 
-The committed JSON Schemas (`public/*.schema.json`) and `public/llms.txt` are
-static contracts that ride the normal build → deploy path.
+The committed JSON Schemas (`public/*.schema.json`), `public/llms.txt`,
+`public/sitemap.xml`, and `public/robots.txt` are static contracts that ride
+the normal build → deploy path.
 ```
 
 - **`lib/probe.js`** — pure, I/O-free probe/health-classification + status.json
-  shaping + history rolling + uptime. This is the tested core.
+  shaping + history rolling + uptime + Atom-feed projection. This is the tested
+  core.
 - **`scripts/run-probes.js`** — the cron entrypoint; the only place with
   networking. Maps each target to its classifier and writes `status.json`,
-  `history.json`, and `health.json` (stamping each with a `$schema` reference).
+  `history.json`, `health.json`, and `feed.xml` (stamping the JSON docs with a
+  `$schema` reference).
 - **`public/`** — the static dashboard (`index.html`, `styles.css`, `app.js`) +
-  the committed `status.json` / `history.json` / `health.json`, the JSON Schemas
-  (`*.schema.json`), and `llms.txt`.
+  the committed `status.json` / `history.json` / `health.json` / `feed.xml`,
+  the JSON Schemas (`*.schema.json`), `llms.txt`, `sitemap.xml`, and
+  `robots.txt`.
 - **Branding** — clean white product theme using the canonical DIG palette
   (violet `#5800D6` → magenta `#FF00DE`, Space Grotesk / Space Mono), consistent
   with dig.net and the hub.
@@ -131,7 +139,11 @@ pattern: **build → S3 sync → CloudFront invalidate**, via
 to `main` (the probe cron's commits trigger it too, so the live site refreshes
 automatically). The probe-generated docs (`status.json` / `history.json` /
 `health.json`) are re-put with `no-cache` so they are never served stale; the
-static contracts (`*.schema.json`, `llms.txt`) ride the normal-cache sync.
+static contracts (`*.schema.json`, `llms.txt`, `sitemap.xml`, `robots.txt`)
+ride the normal-cache sync. `feed.xml` is also probe-generated (a new entry
+lands on every state transition) but rides the normal-cache sync since feed
+readers tolerate a short cache delay and CloudFront invalidation on every
+deploy already refreshes it.
 
 It deploys to **S3 `status-dig-net`** behind **CloudFront `E3GQZ6ABW10CUL`**
 (`status.dig.net`). The bucket, distribution, and OIDC deploy role are read from

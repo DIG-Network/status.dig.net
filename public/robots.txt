@@ -1,6 +1,10 @@
 User-agent: *
 Allow: /
 
+Sitemap: https://status.dig.net/sitemap.xml
+
 # Machine-readable entry point (status/health JSON + schemas + system catalogue)
 # See https://llmstxt.org/
-Sitemap: https://status.dig.net/llms.txt
+# (llms.txt is not a sitemap protocol resource; it is referenced here purely as
+# a discovery hint for crawlers/agents that check robots.txt for related files.)
+# https://status.dig.net/llms.txt

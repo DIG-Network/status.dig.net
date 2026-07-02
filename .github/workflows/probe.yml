@@ -2,10 +2,11 @@ name: probe
 
 # Scheduled server-side health checks. Probes every monitored endpoint
 # (lib/targets.js) from the runner — NO browser, so no live-CORS issues — and
-# commits the refreshed public/status.json + public/history.json back to the
-# repo. The static dashboard fetches those committed files, so the data path is
-# just GitHub Pages-style static hosting (here: S3/CloudFront). A successful
-# probe commit to main triggers the deploy workflow, so the live site updates.
+# commits the refreshed public/status.json + public/history.json +
+# public/health.json + public/feed.xml back to the repo. The static dashboard
+# fetches those committed files, so the data path is just GitHub Pages-style
+# static hosting (here: S3/CloudFront). A successful probe commit to main
+# triggers the deploy workflow, so the live site updates.
 on:
   schedule:
     # Every 5 minutes. (GitHub may coalesce/delay cron under load; that is fine
@@ -37,7 +38,7 @@ jobs:
           set -euo pipefail
           git config user.name  "dig-status-bot"
           git config user.email "noreply@dig.net"
-          git add public/status.json public/history.json public/health.json
+          git add public/status.json public/history.json public/health.json public/feed.xml
           if git diff --cached --quiet; then
             echo "no status change; nothing to commit"
             exit 0

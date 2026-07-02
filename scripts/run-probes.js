@@ -32,6 +32,7 @@ import {
   buildStatus,
   buildHealth,
   appendHistory,
+  buildFeed,
 } from '../lib/probe.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -40,6 +41,7 @@ const PUBLIC = resolve(ROOT, 'public');
 const STATUS_PATH = resolve(PUBLIC, 'status.json');
 const HISTORY_PATH = resolve(PUBLIC, 'history.json');
 const HEALTH_PATH = resolve(PUBLIC, 'health.json');
+const FEED_PATH = resolve(PUBLIC, 'feed.xml');
 
 const REQUEST_TIMEOUT_MS = 12000;
 
@@ -256,10 +258,15 @@ async function main() {
   const SCHEMA_BASE = 'https://status.dig.net';
   const withSchema = (doc, file) => ({ $schema: `${SCHEMA_BASE}/${file}`, ...doc });
 
+  // Atom feed of status TRANSITIONS (not per-sample) — a subscribable log of
+  // incidents/recoveries for feed readers, agents, and monitoring bots.
+  const feedXml = buildFeed(nextHistory, statusDoc);
+
   await mkdir(PUBLIC, { recursive: true });
   await writeFile(STATUS_PATH, JSON.stringify(withSchema(statusDoc, 'status.schema.json'), null, 2) + '\n');
   await writeFile(HISTORY_PATH, JSON.stringify(nextHistory) + '\n');
   await writeFile(HEALTH_PATH, JSON.stringify(withSchema(healthDoc, 'health.schema.json'), null, 2) + '\n');
+  await writeFile(FEED_PATH, feedXml);
 
   // Console summary for the CI log.
   const line = systems.map((s) => `${s.id}=${s.status}`).join(' ');
