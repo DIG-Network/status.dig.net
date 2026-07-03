@@ -21,6 +21,8 @@ concurrency:
 
 permissions:
   contents: write # commit the refreshed status.json/history.json
+  actions: write # dispatch deploy.yml after a refresh (the commit is [skip ci], so the push itself
+  # does not trigger deploy — we trigger it explicitly so the live S3 site actually updates)
 
 jobs:
   probe:
@@ -47,3 +49,9 @@ jobs:
           # Rebase onto any concurrent commits, then push.
           git pull --rebase --autostash origin main
           git push origin HEAD:main
+          # The commit is [skip ci], so this push does NOT trigger deploy.yml on its own. Dispatch
+          # deploy explicitly so the refreshed status.json actually reaches the live S3 site (this
+          # step is only reached when there WAS a change — the no-change branch `exit 0`s above).
+          gh workflow run deploy.yml --ref main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
