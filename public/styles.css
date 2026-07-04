@@ -38,6 +38,13 @@
   --down: #E03E63;
   --down-soft: #FCE7ED;
 
+  /* Accessible "ink" variants for count text on the light chip background — the --up/--degraded/
+     --down brand hues are tuned for dots/fills and fail WCAG 2.2 AA 4.5:1 as small (14px) text.
+     These darker variants pass axe color-contrast on the summary chips (§6.6). */
+  --up-ink: #0A6B49;
+  --degraded-ink: #7A5200;
+  --down-ink: #A81E3A;
+
   --font: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
   --mono: 'Space Mono', ui-monospace, Menlo, monospace;
 
@@ -136,9 +143,9 @@ main:focus-visible { outline: none; } /* skip-link target: no ring on the landma
 .summary { display: flex; gap: 10px; margin-bottom: 26px; flex-wrap: wrap; }
 .chip { display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border-radius: var(--r-pill); font-size: 14px; font-weight: 500; border: 1px solid var(--border-strong); color: var(--fg2); background: var(--bg-soft); }
 .chip-n { font-weight: 700; font-family: var(--mono); }
-.chip-up .chip-n { color: var(--up); }
-.chip-degraded .chip-n { color: var(--degraded); }
-.chip-down .chip-n { color: var(--down); }
+.chip-up .chip-n { color: var(--up-ink); }
+.chip-degraded .chip-n { color: var(--degraded-ink); }
+.chip-down .chip-n { color: var(--down-ink); }
 
 /* ---------- system list ---------- */
 .systems { display: flex; flex-direction: column; gap: 26px; }
