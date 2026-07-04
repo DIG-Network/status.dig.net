@@ -15,7 +15,7 @@ name: deploy
 # clear message, so it stays green pre-provisioning.
 on:
   push:
-    branches: [main]
+    tags: ['v*']
   workflow_dispatch: {}
 
 # Serialize deploys so two runs never race on `s3 sync --delete`.
