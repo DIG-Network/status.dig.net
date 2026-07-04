@@ -4,6 +4,16 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [1.0.2] - 2026-07-04
+
+### Bug Fixes
+
+- Smoke-test the locked release pipeline (bump 1.0.2) (#1)
+
+### Chores
+
+- **status:** Refresh probe results [skip ci]
+
 ## [1.0.1] - 2026-07-04
 
 ### Bug Fixes
