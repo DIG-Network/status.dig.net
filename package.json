@@ -1,6 +1,6 @@
 {
   "name": "status-dig-net",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "type": "module",
   "description": "DIG Network ecosystem health & status dashboard (status.dig.net) — server-side probes + static dashboard",
