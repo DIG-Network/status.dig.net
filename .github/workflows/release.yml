@@ -56,12 +56,15 @@ jobs:
           echo "tag=$TAG" >>"$GITHUB_OUTPUT"
           echo "Releasing $TAG"
 
+      - name: Install git-cliff
+        if: steps.ver.outputs.skip == 'false'
+        uses: taiki-e/install-action@v2
+        with:
+          tool: git-cliff
+
       - name: Generate changelog
         if: steps.ver.outputs.skip == 'false'
-        uses: orhun/git-cliff-action@v3
-        with:
-          config: cliff.toml
-          args: --tag ${{ steps.ver.outputs.tag }} --output CHANGELOG.md
+        run: git-cliff --config cliff.toml --tag "${{ steps.ver.outputs.tag }}" --output CHANGELOG.md
 
       - name: Commit changelog, tag, push
         if: steps.ver.outputs.skip == 'false'
