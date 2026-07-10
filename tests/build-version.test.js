@@ -15,19 +15,25 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
 const DIST = resolve(ROOT, 'dist');
 
+/** Escape every regex metacharacter (not just `.`) before interpolating into a `new RegExp`. */
+function escapeRegExp(literal) {
+  return literal.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 test('build.js injects the real package.json version into dist/index.html and dist/app.js', () => {
   execFileSync(process.execPath, [resolve(ROOT, 'scripts', 'build.js')], { cwd: ROOT, stdio: 'pipe' });
 
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const version = pkg.version;
   assert.match(version, /^\d+\.\d+\.\d+/);
+  const v = escapeRegExp(version);
 
   const html = readFileSync(resolve(DIST, 'index.html'), 'utf8');
   assert.ok(!html.includes('%%APP_VERSION%%'), 'placeholder must not survive the build');
-  assert.match(html, new RegExp(`<meta name="app-version" content="${version.replace(/\./g, '\\.')}"`));
-  assert.match(html, new RegExp(`data-testid="footer-app-version"[^>]*>v${version.replace(/\./g, '\\.')}<`));
+  assert.match(html, new RegExp(`<meta name="app-version" content="${v}"`));
+  assert.match(html, new RegExp(`data-testid="footer-app-version"[^>]*>v${v}<`));
 
   const js = readFileSync(resolve(DIST, 'app.js'), 'utf8');
   assert.ok(!js.includes('%%APP_VERSION%%'), 'placeholder must not survive the build');
-  assert.match(js, new RegExp(`window\\.__APP_VERSION__ = ['"]${version.replace(/\./g, '\\.')}['"]`));
+  assert.match(js, new RegExp(`window\\.__APP_VERSION__ = ['"]${v}['"]`));
 });
