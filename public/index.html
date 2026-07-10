@@ -34,6 +34,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
+  <!-- Build-version exposure (CLAUDE.md §6.7): %%APP_VERSION%% is a build-time token replaced
+       by scripts/build.js from package.json (never hand-maintained here). The bug-report widget
+       auto-detects it from this tag. -->
+  <meta name="app-version" content="%%APP_VERSION%%" />
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
@@ -111,6 +115,7 @@
         <a href="/feed.xml" type="application/atom+xml">Status feed (Atom)</a> · part of the
         <a href="https://dig.net">DIG Network</a>.
       </p>
+      <p class="muted small version-tag" data-testid="footer-app-version">v%%APP_VERSION%%</p>
     </div>
   </footer>
 
@@ -134,5 +139,8 @@
   </template>
 
   <script src="./app.js" defer></script>
+  <!-- Shared DIG Network bug-report widget (CLAUDE.md §6.7) — files reports into
+       DIG-Network/status.dig.net via the allowlisted repo name. -->
+  <script src="https://bugreport.dig.net/widget.js" data-repo="status.dig.net" data-position="bottom-right" async></script>
 </body>
 </html>

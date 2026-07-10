@@ -130,3 +130,24 @@ test('index.html: feed is discoverable via <link rel="alternate">', () => {
   const html = read('index.html');
   assert.match(html, /<link rel="alternate" type="application\/atom\+xml" href="\/feed\.xml"/);
 });
+
+// --- CLAUDE.md §6.7: shared bug-report widget + build-version exposure ----------------------
+
+test('index.html: embeds the shared bug-report widget, scoped to this repo', () => {
+  const html = read('index.html');
+  assert.match(
+    html,
+    /<script src="https:\/\/bugreport\.dig\.net\/widget\.js" data-repo="status\.dig\.net"[^>]*async[^>]*><\/script>/,
+  );
+});
+
+test('index.html: carries the %%APP_VERSION%% build-version placeholder in a <meta app-version> tag and the footer', () => {
+  const html = read('index.html');
+  assert.match(html, /<meta name="app-version" content="%%APP_VERSION%%"\s*\/?>/);
+  assert.match(html, /data-testid="footer-app-version"[^>]*>v%%APP_VERSION%%/);
+});
+
+test('app.js: sets window.__APP_VERSION__ from the %%APP_VERSION%% build-version placeholder', () => {
+  const js = read('app.js');
+  assert.match(js, /window\.__APP_VERSION__ = ['"]%%APP_VERSION%%['"]/);
+});

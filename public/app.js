@@ -9,6 +9,10 @@
 // ---------------------------------------------------------------------------
 'use strict';
 
+// Build-version exposure (CLAUDE.md §6.7): %%APP_VERSION%% is a build-time token replaced by
+// scripts/build.js from package.json (never hand-maintained here). Read by the bug-report widget.
+window.__APP_VERSION__ = '%%APP_VERSION%%';
+
 const STATUS_LABEL = { up: 'Operational', degraded: 'Degraded', down: 'Down' };
 const SPARK_POINTS = 30;
 
