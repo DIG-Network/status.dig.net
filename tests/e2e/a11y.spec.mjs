@@ -97,3 +97,12 @@ test('the accessibility tree exposes the expected landmarks and single h1', asyn
   await expect(page.getByRole('main')).toHaveCount(1);
   await expect(page.getByRole('contentinfo')).toHaveCount(1);
 });
+
+test('build version exposed in all 3 CLAUDE.md §6.7 forms: meta tag, window global, footer', async ({ page }) => {
+  await page.goto('/');
+  const metaVersion = await page.locator('meta[name="app-version"]').getAttribute('content');
+  expect(metaVersion).toMatch(/^\d+\.\d+\.\d+/);
+  const globalVersion = await page.evaluate(() => window.__APP_VERSION__);
+  expect(globalVersion).toBe(metaVersion);
+  await expect(page.getByTestId('footer-app-version')).toHaveText(`v${metaVersion}`);
+});
