@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [1.1.1] - 2026-07-12
+
+### Bug Fixes
+
+- Correct Discord invite (imposter link -> official) (#4)
+
 ## [1.1.0] - 2026-07-10
 
 ### Features
