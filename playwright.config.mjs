@@ -18,7 +18,9 @@ export default defineConfig({
   workers: process.env.CI ? 2 : undefined,
   timeout: process.env.CI ? 60_000 : 30_000,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 1 : 0,
+  // Flaky-test management (#489): surface intermittent a11y/browser flakiness
+  // via automatic re-run instead of a hard fail on the first try.
+  retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
     baseURL: 'http://127.0.0.1:4321',
