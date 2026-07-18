@@ -78,7 +78,9 @@ test('the async status region is exposed as a live region to assistive tech', as
   await expect(overall).toHaveAttribute('data-overall', /up|degraded|down/);
 });
 
-test('the skip-to-content link is keyboard-focusable and targets the main landmark', async ({ page }) => {
+test('the skip-to-content link is keyboard-focusable and targets the main landmark', async ({
+  page,
+}) => {
   await page.goto('/');
   await page.waitForSelector('#main-content');
   // First Tab reaches the skip link (it is the first focusable element).
@@ -98,7 +100,9 @@ test('the accessibility tree exposes the expected landmarks and single h1', asyn
   await expect(page.getByRole('contentinfo')).toHaveCount(1);
 });
 
-test('build version exposed in all 3 CLAUDE.md §6.7 forms: meta tag, window global, footer', async ({ page }) => {
+test('build version exposed in all 3 CLAUDE.md §6.7 forms: meta tag, window global, footer', async ({
+  page,
+}) => {
   await page.goto('/');
   const metaVersion = await page.locator('meta[name="app-version"]').getAttribute('content');
   expect(metaVersion).toMatch(/^\d+\.\d+\.\d+/);

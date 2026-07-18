@@ -35,6 +35,12 @@ jobs:
           node-version: 20
       - name: run probes
         run: node scripts/run-probes.js
+      # SANCTIONED direct-to-main bot exception (see SPEC.md §9; analogous to the
+      # CLAUDE.md §3.6a carve-out). This step commits ONLY the four generated data
+      # files (status/history/health/feed — `git add` names them explicitly, never
+      # source) as the dig-status-bot identity, marked [skip ci]. It carries no code
+      # and cannot bypass the code-review gates, so it is safe to push straight to
+      # main with the default GITHUB_TOKEN. All SOURCE changes still go through a PR.
       - name: commit refreshed status
         run: |
           set -euo pipefail

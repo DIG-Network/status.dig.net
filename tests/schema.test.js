@@ -11,7 +11,14 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { buildStatus, buildHealth, appendHistory, shapeResult, STATUS, SCHEMA_VERSION } from '../lib/probe.js';
+import {
+  buildStatus,
+  buildHealth,
+  appendHistory,
+  shapeResult,
+  STATUS,
+  SCHEMA_VERSION,
+} from '../lib/probe.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PUBLIC = resolve(__dirname, '..', 'public');
@@ -28,7 +35,9 @@ function validate(schema, data, root = schema, path = '$') {
     return validate(target, data, root, path);
   }
   if (schema.const !== undefined && data !== schema.const) {
-    errs.push(`${path}: expected const ${JSON.stringify(schema.const)}, got ${JSON.stringify(data)}`);
+    errs.push(
+      `${path}: expected const ${JSON.stringify(schema.const)}, got ${JSON.stringify(data)}`,
+    );
   }
   if (schema.enum && !schema.enum.includes(data)) {
     errs.push(`${path}: ${JSON.stringify(data)} not in enum ${JSON.stringify(schema.enum)}`);
@@ -40,7 +49,10 @@ function validate(schema, data, root = schema, path = '$') {
   if (typeof data === 'number' && schema.minimum !== undefined && data < schema.minimum) {
     errs.push(`${path}: ${data} < minimum ${schema.minimum}`);
   }
-  if (jsType(data) === 'object' && (schema.properties || schema.required || schema.additionalProperties !== undefined)) {
+  if (
+    jsType(data) === 'object' &&
+    (schema.properties || schema.required || schema.additionalProperties !== undefined)
+  ) {
     for (const key of schema.required || []) {
       if (!(key in data)) errs.push(`${path}: missing required '${key}'`);
     }
@@ -84,11 +96,59 @@ function typeMatches(type, v) {
 // --- the actual documents the runner shapes ---------------------------------
 function sampleSystems() {
   return [
-    shapeResult({ id: 'rpc', name: 'rpc.dig.net', category: 'Read path', status: STATUS.UP, latencyMs: 120, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'jsonrpc', method: 'dig.methods' }, url: 'https://rpc.dig.net/', description: 'RPC' }),
-    { ...shapeResult({ id: 'cdn', name: 'cdn.dig.net', category: 'Read path', status: STATUS.DEGRADED, latencyMs: 9000, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'http', httpStatus: null, errorCode: 'TRANSPORT' }, error: 'fetch failed' }), excludeFromOverall: true },
-    shapeResult({ id: 'relay', name: 'relay.dig.net', category: 'Network', status: STATUS.UP, latencyMs: 70, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'tls', host: 'relay.dig.net', port: 443 }, url: 'wss://relay.dig.net:443', description: 'NAT-traversal relay' }),
-    shapeResult({ id: 'coinset', name: 'coinset.org ChainView', category: 'Chia', status: STATUS.UP, latencyMs: 200, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'chainview', peakHeight: 8933589, synced: true } }),
-    shapeResult({ id: 'chia-mainnet', name: 'Chia mainnet', category: 'Chia', status: STATUS.UP, latencyMs: 0, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'derived', peakHeight: 8933589, advancedBy: 5, secondsSincePrev: 90 } }),
+    shapeResult({
+      id: 'rpc',
+      name: 'rpc.dig.net',
+      category: 'Read path',
+      status: STATUS.UP,
+      latencyMs: 120,
+      checkedAt: '2026-06-28T00:00:00.000Z',
+      detail: { kind: 'jsonrpc', method: 'dig.methods' },
+      url: 'https://rpc.dig.net/',
+      description: 'RPC',
+    }),
+    {
+      ...shapeResult({
+        id: 'cdn',
+        name: 'cdn.dig.net',
+        category: 'Read path',
+        status: STATUS.DEGRADED,
+        latencyMs: 9000,
+        checkedAt: '2026-06-28T00:00:00.000Z',
+        detail: { kind: 'http', httpStatus: null, errorCode: 'TRANSPORT' },
+        error: 'fetch failed',
+      }),
+      excludeFromOverall: true,
+    },
+    shapeResult({
+      id: 'relay',
+      name: 'relay.dig.net',
+      category: 'Network',
+      status: STATUS.UP,
+      latencyMs: 70,
+      checkedAt: '2026-06-28T00:00:00.000Z',
+      detail: { kind: 'tls', host: 'relay.dig.net', port: 443 },
+      url: 'wss://relay.dig.net:443',
+      description: 'NAT-traversal relay',
+    }),
+    shapeResult({
+      id: 'coinset',
+      name: 'coinset.org ChainView',
+      category: 'Chia',
+      status: STATUS.UP,
+      latencyMs: 200,
+      checkedAt: '2026-06-28T00:00:00.000Z',
+      detail: { kind: 'chainview', peakHeight: 8933589, synced: true },
+    }),
+    shapeResult({
+      id: 'chia-mainnet',
+      name: 'Chia mainnet',
+      category: 'Chia',
+      status: STATUS.UP,
+      latencyMs: 0,
+      checkedAt: '2026-06-28T00:00:00.000Z',
+      detail: { kind: 'derived', peakHeight: 8933589, advancedBy: 5, secondsSincePrev: 90 },
+    }),
   ];
 }
 
@@ -101,7 +161,10 @@ test('status.schema.json: a buildStatus document validates', () => {
 
 test('status.schema.json: a document WITH the injected $schema key still validates', () => {
   const schema = loadSchema('status.schema.json');
-  const doc = { $schema: 'https://status.dig.net/status.schema.json', ...buildStatus({ generatedAt: '2026-06-28T00:00:00.000Z', systems: sampleSystems() }) };
+  const doc = {
+    $schema: 'https://status.dig.net/status.schema.json',
+    ...buildStatus({ generatedAt: '2026-06-28T00:00:00.000Z', systems: sampleSystems() }),
+  };
   assert.deepEqual(validate(schema, doc), []);
 });
 
@@ -110,8 +173,26 @@ test('status.schema.json: a tls-kind record (incl. TLS_ERROR) validates', () => 
   const doc = buildStatus({
     generatedAt: '2026-06-28T00:00:00.000Z',
     systems: [
-      shapeResult({ id: 'relay', name: 'relay.dig.net', category: 'Network', status: STATUS.UP, latencyMs: 70, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'tls', host: 'relay.dig.net', port: 443 }, url: 'wss://relay.dig.net:443' }),
-      shapeResult({ id: 'relay2', name: 'relay2', category: 'Network', status: STATUS.DOWN, latencyMs: 12000, checkedAt: '2026-06-28T00:00:00.000Z', detail: { kind: 'tls', host: 'relay.dig.net', port: 443, errorCode: 'TLS_ERROR' }, error: 'cert invalid' }),
+      shapeResult({
+        id: 'relay',
+        name: 'relay.dig.net',
+        category: 'Network',
+        status: STATUS.UP,
+        latencyMs: 70,
+        checkedAt: '2026-06-28T00:00:00.000Z',
+        detail: { kind: 'tls', host: 'relay.dig.net', port: 443 },
+        url: 'wss://relay.dig.net:443',
+      }),
+      shapeResult({
+        id: 'relay2',
+        name: 'relay2',
+        category: 'Network',
+        status: STATUS.DOWN,
+        latencyMs: 12000,
+        checkedAt: '2026-06-28T00:00:00.000Z',
+        detail: { kind: 'tls', host: 'relay.dig.net', port: 443, errorCode: 'TLS_ERROR' },
+        error: 'cert invalid',
+      }),
     ],
   });
   assert.deepEqual(validate(schema, doc), [], validate(schema, doc).join('\n'));
@@ -124,13 +205,18 @@ test('status.schema.json: pins schemaVersion to SCHEMA_VERSION', () => {
 
 test('health.schema.json: a buildHealth document validates', () => {
   const schema = loadSchema('health.schema.json');
-  const doc = buildHealth(buildStatus({ generatedAt: '2026-06-28T00:00:00.000Z', systems: sampleSystems() }));
+  const doc = buildHealth(
+    buildStatus({ generatedAt: '2026-06-28T00:00:00.000Z', systems: sampleSystems() }),
+  );
   assert.deepEqual(validate(schema, doc), []);
 });
 
 test('health.schema.json: a document WITH the injected $schema key still validates', () => {
   const schema = loadSchema('health.schema.json');
-  const doc = { $schema: 'https://status.dig.net/health.schema.json', ...buildHealth(buildStatus({ generatedAt: 't', systems: sampleSystems() })) };
+  const doc = {
+    $schema: 'https://status.dig.net/health.schema.json',
+    ...buildHealth(buildStatus({ generatedAt: 't', systems: sampleSystems() })),
+  };
   assert.deepEqual(validate(schema, doc), []);
 });
 
@@ -145,7 +231,12 @@ test('history.schema.json: an appendHistory document validates', () => {
 
 test('schemas: reject an out-of-enum status (validator + schema actually bite)', () => {
   const schema = loadSchema('health.schema.json');
-  const bad = { schemaVersion: SCHEMA_VERSION, overall: 'sideways', generatedAt: 't', systems: { rpc: 'up' } };
+  const bad = {
+    schemaVersion: SCHEMA_VERSION,
+    overall: 'sideways',
+    generatedAt: 't',
+    systems: { rpc: 'up' },
+  };
   assert.ok(validate(schema, bad).length > 0);
 });
 

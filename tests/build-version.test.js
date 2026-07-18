@@ -21,7 +21,10 @@ function escapeRegExp(literal) {
 }
 
 test('build.js injects the real package.json version into dist/index.html and dist/app.js', () => {
-  execFileSync(process.execPath, [resolve(ROOT, 'scripts', 'build.js')], { cwd: ROOT, stdio: 'pipe' });
+  execFileSync(process.execPath, [resolve(ROOT, 'scripts', 'build.js')], {
+    cwd: ROOT,
+    stdio: 'pipe',
+  });
 
   const pkg = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
   const version = pkg.version;

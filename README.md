@@ -13,16 +13,20 @@ rolling `history.json` into this repo. The page just fetches those two files.
 The monitored systems are defined in [`lib/targets.js`](lib/targets.js) and are
 grounded in the ecosystem dependency map (`SYSTEM.md`):
 
-| System | Probe | Why it matters |
-|---|---|---|
-| **rpc.dig.net** | JSON-RPC 2.0 `dig.methods` | The blind content read service every client uses |
-| **hub.dig.net /v1** | HTTP `GET /v1/health` (2xx + cert) | DIGHUb REST control plane (account/store/domain lifecycle) |
-| **docs.dig.net** | HTTP 200 + cert | Documentation site |
-| **dig.net** | HTTP 200 + cert | Marketing / entry-point site |
-| **cdn.dig.net** | HTTP reachable + cert (optional) | §21 encrypted-chunk CDN host front |
-| **relay.dig.net** | TLS handshake + cert (`wss://relay.dig.net:443`, optional) | NAT-traversal relay DIG nodes connect through |
-| **coinset.org ChainView** | `get_blockchain_state` (peak height + sync) | Chia mainnet RPC — the chain trust root |
-| **Chia mainnet** | derived from coinset peak freshness | Is the chain (and our view of it) advancing? |
+| System                    | Probe                                                      | Why it matters                                                   |
+| ------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------- |
+| **rpc.dig.net**           | JSON-RPC 2.0 `dig.methods`                                 | The blind content read service every client uses                 |
+| **hub.dig.net /v1**       | HTTP `GET /v1/health` (2xx + cert)                         | DIGHUb REST control plane (account/store/domain lifecycle)       |
+| **docs.dig.net**          | HTTP 200 + cert                                            | Documentation site                                               |
+| **explore.dig.net**       | HTTP 200 + cert                                            | Curated DIG Network dApp store                                   |
+| **dig.net**               | HTTP 200 + cert                                            | Marketing / entry-point site                                     |
+| **cdn.dig.net**           | HTTP reachable + cert (optional)                           | §21 encrypted-chunk CDN host front                               |
+| **apt.dig.net**           | HTTP reachable + cert (optional)                           | Ubuntu/Debian APT repository (`apt install` the DIG ecosystem)   |
+| **\*.on.dig.net**         | HTTP 200 + cert (live subdomain)                           | Subdomain resolver serving published store content per subdomain |
+| **api.bugreport.dig.net** | HTTP `GET /v1/health` (2xx + cert)                         | Bug-report intake API every DIG frontend embeds                  |
+| **relay.dig.net**         | TLS handshake + cert (`wss://relay.dig.net:443`, optional) | NAT-traversal relay DIG nodes connect through                    |
+| **coinset.org ChainView** | `get_blockchain_state` (peak height + sync)                | Chia mainnet RPC — the chain trust root                          |
+| **Chia mainnet**          | derived from coinset peak freshness                        | Is the chain (and our view of it) advancing?                     |
 
 Each system shows **up / degraded / down**, **latency**, **last-checked**, a
 30-point **history sparkline**, and **uptime %** over the recorded window.
@@ -31,58 +35,29 @@ Each system shows **up / degraded / down**, **latency**, **last-checked**, a
 
 The dashboard is rendered client-side; **agents should read the JSON directly**
 rather than scraping the HTML. Every public document is committed by the probe
-cron and served with `no-cache`, and is described by a committed, versioned JSON
-Schema.
+cron, served with `no-cache`, and described by a committed, versioned JSON Schema.
 
-| Path | What | Schema |
-|---|---|---|
-| [`/health.json`](public/health.json) | Tiny summary for quick polling: `{schemaVersion, overall, generatedAt, systems:{id:status}}` | [`/health.schema.json`](public/health.schema.json) |
-| [`/status.json`](public/status.json) | Full snapshot: overall, summary counts, per-system records (status, latency, detail, `errorCode`) | [`/status.schema.json`](public/status.schema.json) |
-| [`/history.json`](public/history.json) | Rolling per-system history series (keyed by id) | [`/history.schema.json`](public/history.schema.json) |
-| [`/feed.xml`](public/feed.xml) | Atom feed of status TRANSITIONS (one entry per state change, not per sample) — subscribe instead of polling `history.json` | — |
-| [`/llms.txt`](public/llms.txt) | Machine entry point pointing at all of the above + the contract | — |
-| [`/sitemap.xml`](public/sitemap.xml) | Standard XML sitemap (one public page) | — |
-| [`/robots.txt`](public/robots.txt) | Crawl policy — full indexing allowed, points at `sitemap.xml` | — |
+| Path                                   | What                                                                                                                       | Schema                                               |
+| -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| [`/health.json`](public/health.json)   | Tiny summary for quick polling: `{schemaVersion, overall, generatedAt, systems:{id:status}}`                               | [`/health.schema.json`](public/health.schema.json)   |
+| [`/status.json`](public/status.json)   | Full snapshot: overall, summary counts, per-system records (status, latency, detail, `errorCode`)                          | [`/status.schema.json`](public/status.schema.json)   |
+| [`/history.json`](public/history.json) | Rolling per-system history series (keyed by id)                                                                            | [`/history.schema.json`](public/history.schema.json) |
+| [`/feed.xml`](public/feed.xml)         | Atom feed of status TRANSITIONS (one entry per state change, not per sample) — subscribe instead of polling `history.json` | —                                                    |
+| [`/llms.txt`](public/llms.txt)         | Machine entry point pointing at all of the above + the contract                                                            | —                                                    |
+| [`/sitemap.xml`](public/sitemap.xml)   | Standard XML sitemap (one public page)                                                                                     | —                                                    |
+| [`/robots.txt`](public/robots.txt)     | Crawl policy — full indexing allowed, points at `sitemap.xml`                                                              | —                                                    |
 
-Each emitted document carries a `$schema` key referencing its schema, so it is
-self-describing. The schemas are pinned to **`schemaVersion`** (currently `1`),
-bumped only on a **breaking** change to the document shape (additive fields do
-not bump it) — branch on it to detect a contract break.
+The **normative contract** for all of the above — the `schemaVersion` rules, the
+stable status + failure-code enums, the per-family classification rules, the
+uptime scoring, and the DOM hooks — lives in [`SPEC.md`](SPEC.md). Consumers and
+reimplementers should build against `SPEC.md`; the classification rules are
+unit-tested in [`tests/probe.test.js`](tests/probe.test.js) and the
+schema/contract conformance in [`tests/schema.test.js`](tests/schema.test.js).
 
-**Stable status enum:** `up` (reachable + healthy) · `degraded` (reachable but
-impaired) · `down` (unreachable / DNS / TLS / 5xx). **`overall`** is the
-worst-of across systems not marked `excludeFromOverall`.
-
-**Stable failure-code enum** (`detail.errorCode`, branch on this not the human
-`error` string): `TIMEOUT`, `TRANSPORT`, `HTTP_5XX`, `HTTP_4XX`, `RPC_ERROR`,
-`RPC_MALFORMED`, `NOT_SYNCED`, `NO_PEAK`, `STALE_PEAK`, `TLS_ERROR`.
-
-**DOM hooks** for driving the rendered page: `#overall` carries `data-testid="overall"`,
-`data-overall`, `data-generated-at`; each row carries `data-testid="system-row"`,
-`data-system-id`, `data-status`, `data-uptime`, `data-latency-ms`.
-
-Classification rules (all unit-tested in [`tests/probe.test.js`](tests/probe.test.js)),
-and the schema/contract conformance is guarded in [`tests/schema.test.js`](tests/schema.test.js):
-
-- **HTTP**: 2xx = up, 3xx/4xx = degraded (reachable, wrong response), 5xx or
-  no-response (DNS/TLS/transport) = down. A bad/expired cert fails the default
-  fetch verification → surfaces as down.
-- **JSON-RPC**: a `result` = up; a JSON-RPC `error` object = degraded (alive but
-  rejected the probe); non-2xx transport = down.
-- **TLS** (`relay.dig.net`): a valid-cert TLS handshake = up; a connect/handshake
-  failure = down (`TRANSPORT`/`TIMEOUT`); a cert-validation failure = down
-  (`TLS_ERROR`). The relay's public edge is an NLB TLS listener fronting the relay
-  WebSocket — not an HTTP server — so it's probed with a raw TLS handshake rather
-  than an HTTP GET. The relay's own `/health` (`{status, connected_peers,
-  uptime_secs, version}`) is internal-only (VPC-scoped, the NLB target-group
-  check); a live TLS edge with an in-rotation target transitively confirms it.
-- **ChainView**: reachable + a peak height + synced = up; node reports
-  not-synced = degraded; no peak = down.
-- **Peak freshness**: peak advanced since the last probe = up; no advance for
-  far longer than a Chia block (~18.75s × 20) = degraded (stale).
-- **Optional targets** (e.g. `cdn.dig.net` before it is provisioned): an
-  unreachable optional reads as **degraded**, not down, and is excluded from the
-  overall rollup — a missing optional never shows the whole ecosystem as down.
+In brief: each document carries a `$schema` key (self-describing); the stable
+status enum is `up` · `degraded` · `down`; `overall` is the worst-of across
+systems not marked `excludeFromOverall`; and consumers branch on the machine
+`detail.errorCode`, not the human `error` string.
 
 ## Architecture
 
@@ -102,7 +77,6 @@ static site (public/) fetches them ──┘  → renders dashboard (app.js)
 The committed JSON Schemas (`public/*.schema.json`), `public/llms.txt`,
 `public/sitemap.xml`, and `public/robots.txt` are static contracts that ride
 the normal build → deploy path.
-```
 
 - **`lib/probe.js`** — pure, I/O-free probe/health-classification + status.json
   shaping + history rolling + uptime + Atom-feed projection. This is the tested
@@ -167,11 +141,11 @@ It deploys to **S3 `status-dig-net`** behind **CloudFront `E3GQZ6ABW10CUL`**
 (`status.dig.net`). The bucket, distribution, and OIDC deploy role are read from
 repo **Variables** so the workflow stays portable:
 
-| Var | Value | Purpose |
-|---|---|---|
-| `STATUS_S3_BUCKET` | `status-dig-net` | S3 website bucket |
-| `STATUS_CLOUDFRONT_DISTRIBUTION_ID` | `E3GQZ6ABW10CUL` | CloudFront distribution |
-| `CI_DEPLOY_ROLE_ARN` | `arn:aws:iam::…:role/…` | OIDC deploy role (same scheme as dig.net) |
+| Var                                 | Value                   | Purpose                                   |
+| ----------------------------------- | ----------------------- | ----------------------------------------- |
+| `STATUS_S3_BUCKET`                  | `status-dig-net`        | S3 website bucket                         |
+| `STATUS_CLOUDFRONT_DISTRIBUTION_ID` | `E3GQZ6ABW10CUL`        | CloudFront distribution                   |
+| `CI_DEPLOY_ROLE_ARN`                | `arn:aws:iam::…:role/…` | OIDC deploy role (same scheme as dig.net) |
 
 If any of the three is unset, the deploy job **builds + verifies and then skips
 the S3 sync** with a clear notice (a safety net should the vars be cleared), so

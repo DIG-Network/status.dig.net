@@ -8,3 +8,7 @@ out/
 test-results/
 playwright-report/
 .playwright/
+
+# c8 coverage output
+coverage/
+.nyc_output/

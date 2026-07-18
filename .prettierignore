@@ -1,0 +1,23 @@
+# Generated / vendored — not ours to format.
+node_modules/
+dist/
+coverage/
+package-lock.json
+CHANGELOG.md
+
+# Probe-generated data documents (committed by the cron; never hand-edited).
+public/status.json
+public/history.json
+public/health.json
+public/feed.xml
+
+# Static browser assets whose exact markup/bytes are asserted by the
+# frontend-baseline + a11y suites — reformatting would churn/break those
+# contracts for no readability gain. The dashboard JS/CSS/HTML is hand-curated.
+public/index.html
+public/app.js
+public/styles.css
+public/sitemap.xml
+public/robots.txt
+public/llms.txt
+public/og-image.svg

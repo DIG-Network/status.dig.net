@@ -1,0 +1,11 @@
+{
+  "//": "Coverage gate (CLAUDE.md §2.3, ≥80%). Scoped to lib/** — the pure, I/O-free probe/classification core that carries the branching logic. scripts/ is the thin network+fs shell and public/app.js is browser DOM glue (exercised by the a11y e2e suite), neither of which node --test unit-covers.",
+  "include": ["lib/**"],
+  "all": true,
+  "reporter": ["text-summary"],
+  "check-coverage": true,
+  "lines": 80,
+  "functions": 80,
+  "branches": 80,
+  "statements": 80
+}
