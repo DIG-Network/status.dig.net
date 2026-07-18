@@ -78,8 +78,6 @@ The committed JSON Schemas (`public/*.schema.json`), `public/llms.txt`,
 `public/sitemap.xml`, and `public/robots.txt` are static contracts that ride
 the normal build → deploy path.
 
-````
-
 - **`lib/probe.js`** — pure, I/O-free probe/health-classification + status.json
   shaping + history rolling + uptime + Atom-feed projection. This is the tested
   core.
@@ -108,7 +106,7 @@ npm run probe       # probe live endpoints -> public/{status,history,health}.jso
 npm run serve       # static server on http://localhost:4173 (serves public/)
 # one-liner:
 npm run probe && npm run serve
-````
+```
 
 `npm run build` copies `public/` → `dist/` (the deploy artifact).
 
