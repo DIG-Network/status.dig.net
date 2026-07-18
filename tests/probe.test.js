@@ -32,10 +32,7 @@ test('classify: ok within latency budget is "up"', () => {
 });
 
 test('classify: ok but slow (over degradedMs) is "degraded"', () => {
-  assert.equal(
-    classify({ ok: true, latencyMs: 5000 }, { degradedMs: 2000 }),
-    STATUS.DEGRADED
-  );
+  assert.equal(classify({ ok: true, latencyMs: 5000 }, { degradedMs: 2000 }), STATUS.DEGRADED);
 });
 
 test('classify: not ok is "down"', () => {
@@ -74,12 +71,20 @@ test('classifyHttp: network error (no status) is down', () => {
 // transport failure → down.
 // ---------------------------------------------------------------------------
 test('classifyJsonRpc: result present is up', () => {
-  const r = classifyJsonRpc({ status: 200, body: { jsonrpc: '2.0', id: 1, result: ['dig.getContent'] }, latencyMs: 90 });
+  const r = classifyJsonRpc({
+    status: 200,
+    body: { jsonrpc: '2.0', id: 1, result: ['dig.getContent'] },
+    latencyMs: 90,
+  });
   assert.equal(r.status, STATUS.UP);
 });
 
 test('classifyJsonRpc: jsonrpc error object is degraded', () => {
-  const r = classifyJsonRpc({ status: 200, body: { jsonrpc: '2.0', id: 1, error: { code: -32601, message: 'Method not found' } }, latencyMs: 90 });
+  const r = classifyJsonRpc({
+    status: 200,
+    body: { jsonrpc: '2.0', id: 1, error: { code: -32601, message: 'Method not found' } },
+    latencyMs: 90,
+  });
   assert.equal(r.status, STATUS.DEGRADED);
 });
 
@@ -88,7 +93,10 @@ test('classifyJsonRpc: non-200 transport is down', () => {
 });
 
 test('classifyJsonRpc: malformed body (not jsonrpc) is degraded', () => {
-  assert.equal(classifyJsonRpc({ status: 200, body: { hello: 'world' }, latencyMs: 90 }).status, STATUS.DEGRADED);
+  assert.equal(
+    classifyJsonRpc({ status: 200, body: { hello: 'world' }, latencyMs: 90 }).status,
+    STATUS.DEGRADED,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -121,7 +129,10 @@ test('classifyChainView: missing peak is down', () => {
 // TLS_ERROR code.
 // ---------------------------------------------------------------------------
 test('classifyTls: a successful handshake is up', () => {
-  assert.deepEqual(classifyTls({ connected: true, latencyMs: 60 }), { status: STATUS.UP, ok: true });
+  assert.deepEqual(classifyTls({ connected: true, latencyMs: 60 }), {
+    status: STATUS.UP,
+    ok: true,
+  });
 });
 
 test('classifyTls: a slow-but-successful handshake is degraded', () => {
@@ -180,7 +191,10 @@ test('classifyPeakFreshness: brief no-advance within a couple blocks is up', () 
 });
 
 test('classifyPeakFreshness: no prior height yet (first run) is up if height present', () => {
-  assert.equal(classifyPeakFreshness({ height: 100, prevHeight: null, secondsSincePrev: null }).status, STATUS.UP);
+  assert.equal(
+    classifyPeakFreshness({ height: 100, prevHeight: null, secondsSincePrev: null }).status,
+    STATUS.UP,
+  );
 });
 
 // ---------------------------------------------------------------------------
@@ -222,7 +236,10 @@ test('classifyHttp: unreachable OPTIONAL target is degraded, not down', () => {
 });
 
 test('classifyHttp: optional 5xx is still degraded (not a hard down)', () => {
-  assert.equal(classifyHttp({ status: 503, latencyMs: 80 }, { optional: true }).status, STATUS.DEGRADED);
+  assert.equal(
+    classifyHttp({ status: 503, latencyMs: 80 }, { optional: true }).status,
+    STATUS.DEGRADED,
+  );
 });
 
 test('classifyHttp: reachable optional 200 is up', () => {
@@ -239,7 +256,16 @@ test('buildStatus: a system flagged excludeFromOverall does not drag overall', (
     systems: [
       shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 10, checkedAt: 't' }),
       // An optional/not-yet-provisioned system marked excluded from the rollup.
-      { ...shapeResult({ id: 'cdn', name: 'cdn', status: STATUS.DEGRADED, latencyMs: 10, checkedAt: 't' }), excludeFromOverall: true },
+      {
+        ...shapeResult({
+          id: 'cdn',
+          name: 'cdn',
+          status: STATUS.DEGRADED,
+          latencyMs: 10,
+          checkedAt: 't',
+        }),
+        excludeFromOverall: true,
+      },
     ],
   });
   assert.equal(doc.overall, STATUS.UP);
@@ -296,7 +322,9 @@ test('SCHEMA_VERSION is a positive integer', () => {
 test('buildStatus: emits schemaVersion equal to SCHEMA_VERSION', () => {
   const doc = buildStatus({
     generatedAt: '2026-06-28T00:00:00.000Z',
-    systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 10, checkedAt: 't' })],
+    systems: [
+      shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 10, checkedAt: 't' }),
+    ],
   });
   assert.equal(doc.schemaVersion, SCHEMA_VERSION);
   // schemaVersion is the first key so the contract version is discoverable up-front.
@@ -313,8 +341,20 @@ test('buildHealth: summarizes a status doc into {schemaVersion, overall, generat
   const doc = buildStatus({
     generatedAt: '2026-06-28T00:00:00.000Z',
     systems: [
-      shapeResult({ id: 'rpc', name: 'rpc.dig.net', status: STATUS.UP, latencyMs: 10, checkedAt: 't' }),
-      shapeResult({ id: 'cdn', name: 'cdn.dig.net', status: STATUS.DEGRADED, latencyMs: 10, checkedAt: 't' }),
+      shapeResult({
+        id: 'rpc',
+        name: 'rpc.dig.net',
+        status: STATUS.UP,
+        latencyMs: 10,
+        checkedAt: 't',
+      }),
+      shapeResult({
+        id: 'cdn',
+        name: 'cdn.dig.net',
+        status: STATUS.DEGRADED,
+        latencyMs: 10,
+        checkedAt: 't',
+      }),
     ],
   });
   const health = buildHealth(doc);
@@ -338,7 +378,16 @@ test('buildHealth: overall mirrors buildStatus (worst-of) for the same systems',
 test('buildHealth: is a tiny summary — no per-system latency/detail leaks in', () => {
   const doc = buildStatus({
     generatedAt: 't',
-    systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 99, checkedAt: 't', detail: { kind: 'http' } })],
+    systems: [
+      shapeResult({
+        id: 'a',
+        name: 'A',
+        status: STATUS.UP,
+        latencyMs: 99,
+        checkedAt: 't',
+        detail: { kind: 'http' },
+      }),
+    ],
   });
   const health = buildHealth(doc);
   // The systems map is a flat id->status enum, not the full records.
@@ -368,21 +417,34 @@ test('classifyHttp: timeout carries errorCode TIMEOUT', () => {
 });
 
 test('classifyJsonRpc: a JSON-RPC error object carries errorCode RPC_ERROR', () => {
-  const r = classifyJsonRpc({ status: 200, body: { jsonrpc: '2.0', id: 1, error: { code: -32601, message: 'x' } }, latencyMs: 90 });
+  const r = classifyJsonRpc({
+    status: 200,
+    body: { jsonrpc: '2.0', id: 1, error: { code: -32601, message: 'x' } },
+    latencyMs: 90,
+  });
   assert.equal(r.errorCode, ERROR_CODE.RPC_ERROR);
 });
 
 test('classifyJsonRpc: a non-jsonrpc 2xx body carries errorCode RPC_MALFORMED', () => {
-  assert.equal(classifyJsonRpc({ status: 200, body: { hi: 1 }, latencyMs: 90 }).errorCode, ERROR_CODE.RPC_MALFORMED);
+  assert.equal(
+    classifyJsonRpc({ status: 200, body: { hi: 1 }, latencyMs: 90 }).errorCode,
+    ERROR_CODE.RPC_MALFORMED,
+  );
 });
 
 test('classifyChainView: not-synced carries errorCode NOT_SYNCED', () => {
   const body = { blockchain_state: { peak: { height: 10 }, sync: { synced: false } } };
-  assert.equal(classifyChainView({ status: 200, body, latencyMs: 110 }).errorCode, ERROR_CODE.NOT_SYNCED);
+  assert.equal(
+    classifyChainView({ status: 200, body, latencyMs: 110 }).errorCode,
+    ERROR_CODE.NOT_SYNCED,
+  );
 });
 
 test('classifyChainView: missing peak carries errorCode NO_PEAK', () => {
-  assert.equal(classifyChainView({ status: 200, body: {}, latencyMs: 110 }).errorCode, ERROR_CODE.NO_PEAK);
+  assert.equal(
+    classifyChainView({ status: 200, body: {}, latencyMs: 110 }).errorCode,
+    ERROR_CODE.NO_PEAK,
+  );
 });
 
 test('classifyPeakFreshness: a stale (non-advancing) peak carries errorCode STALE_PEAK', () => {
@@ -402,7 +464,15 @@ test('classify*: a healthy outcome has no errorCode', () => {
 test('appendHistory: starts an empty series and appends', () => {
   const prior = {};
   const next = appendHistory(prior, {
-    systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: 10, checkedAt: '2026-06-28T00:00:00.000Z' })],
+    systems: [
+      shapeResult({
+        id: 'a',
+        name: 'A',
+        status: STATUS.UP,
+        latencyMs: 10,
+        checkedAt: '2026-06-28T00:00:00.000Z',
+      }),
+    ],
   });
   assert.equal(next.a.length, 1);
   assert.deepEqual(next.a[0], { t: '2026-06-28T00:00:00.000Z', status: STATUS.UP, latencyMs: 10 });
@@ -411,9 +481,15 @@ test('appendHistory: starts an empty series and appends', () => {
 test('appendHistory: caps series at maxPoints, dropping oldest', () => {
   let hist = {};
   for (let i = 0; i < 5; i++) {
-    hist = appendHistory(hist, {
-      systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: i, checkedAt: `t${i}` })],
-    }, { maxPoints: 3 });
+    hist = appendHistory(
+      hist,
+      {
+        systems: [
+          shapeResult({ id: 'a', name: 'A', status: STATUS.UP, latencyMs: i, checkedAt: `t${i}` }),
+        ],
+      },
+      { maxPoints: 3 },
+    );
   }
   assert.equal(hist.a.length, 3);
   // oldest dropped → first remaining is t2
@@ -425,7 +501,9 @@ test('appendHistory: does not mutate the prior history object', () => {
   const prior = { a: [{ t: 't0', status: STATUS.UP, latencyMs: 1 }] };
   const snapshot = JSON.stringify(prior);
   appendHistory(prior, {
-    systems: [shapeResult({ id: 'a', name: 'A', status: STATUS.DOWN, latencyMs: 2, checkedAt: 't1' })],
+    systems: [
+      shapeResult({ id: 'a', name: 'A', status: STATUS.DOWN, latencyMs: 2, checkedAt: 't1' }),
+    ],
   });
   assert.equal(JSON.stringify(prior), snapshot);
 });

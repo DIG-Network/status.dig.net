@@ -1,12 +1,16 @@
 {
   "name": "status-dig-net",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
   "description": "DIG Network ecosystem health & status dashboard (status.dig.net) — server-side probes + static dashboard",
   "scripts": {
     "test": "node --test",
+    "coverage": "c8 node --test tests/*.test.js",
     "test:a11y": "playwright test --config=playwright.config.mjs",
+    "lint": "eslint .",
+    "format:check": "prettier --check .",
+    "format": "prettier --write .",
     "probe": "node scripts/run-probes.js",
     "build": "node scripts/build.js",
     "serve": "node scripts/serve.js"
@@ -16,7 +20,12 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
+    "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.61.1",
-    "playwright": "^1.61.1"
+    "c8": "^12.0.0",
+    "eslint": "^10.7.0",
+    "globals": "^17.7.0",
+    "playwright": "^1.61.1",
+    "prettier": "^3.9.5"
   }
 }

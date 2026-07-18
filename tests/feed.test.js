@@ -12,12 +12,23 @@ import assert from 'node:assert/strict';
 import { buildFeed, appendHistory, buildStatus, shapeResult, STATUS } from '../lib/probe.js';
 
 function sys(id, status, t) {
-  return shapeResult({ id, name: `${id}.dig.net`, category: 'Read path', status, latencyMs: 10, checkedAt: t, detail: { kind: 'http', httpStatus: status === STATUS.UP ? 200 : 500 } });
+  return shapeResult({
+    id,
+    name: `${id}.dig.net`,
+    category: 'Read path',
+    status,
+    latencyMs: 10,
+    checkedAt: t,
+    detail: { kind: 'http', httpStatus: status === STATUS.UP ? 200 : 500 },
+  });
 }
 
 test('buildFeed: well-formed Atom XML with required feed-level elements', () => {
   const history = { rpc: [{ t: '2026-06-01T00:00:00.000Z', status: 'up', latencyMs: 10 }] };
-  const doc = buildStatus({ generatedAt: '2026-06-01T00:05:00.000Z', systems: [sys('rpc', STATUS.UP, '2026-06-01T00:05:00.000Z')] });
+  const doc = buildStatus({
+    generatedAt: '2026-06-01T00:05:00.000Z',
+    systems: [sys('rpc', STATUS.UP, '2026-06-01T00:05:00.000Z')],
+  });
   const xml = buildFeed(history, doc);
   assert.match(xml, /^<\?xml version="1\.0" encoding="UTF-8"\?>/);
   assert.match(xml, /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
@@ -37,7 +48,10 @@ test('buildFeed: emits one entry per detected state transition, not per sample',
       { t: '2026-06-01T00:20:00.000Z', status: 'up', latencyMs: 11 },
     ],
   };
-  const doc = buildStatus({ generatedAt: '2026-06-01T00:20:00.000Z', systems: [sys('rpc', STATUS.UP, '2026-06-01T00:20:00.000Z')] });
+  const doc = buildStatus({
+    generatedAt: '2026-06-01T00:20:00.000Z',
+    systems: [sys('rpc', STATUS.UP, '2026-06-01T00:20:00.000Z')],
+  });
   const xml = buildFeed(history, doc);
   const entries = xml.match(/<entry>/g) || [];
   // Two transitions: up->down at 00:10, down->up at 00:20. The very first
@@ -48,15 +62,26 @@ test('buildFeed: emits one entry per detected state transition, not per sample',
 });
 
 test('buildFeed: escapes XML-significant characters in entry content', () => {
-  const history = { rpc: [{ t: '2026-06-01T00:00:00.000Z', status: 'up' }, { t: '2026-06-01T00:05:00.000Z', status: 'down' }] };
-  const doc = buildStatus({ generatedAt: '2026-06-01T00:05:00.000Z', systems: [{ ...sys('rpc', STATUS.DOWN, '2026-06-01T00:05:00.000Z'), name: 'A & B <rpc>' }] });
+  const history = {
+    rpc: [
+      { t: '2026-06-01T00:00:00.000Z', status: 'up' },
+      { t: '2026-06-01T00:05:00.000Z', status: 'down' },
+    ],
+  };
+  const doc = buildStatus({
+    generatedAt: '2026-06-01T00:05:00.000Z',
+    systems: [{ ...sys('rpc', STATUS.DOWN, '2026-06-01T00:05:00.000Z'), name: 'A & B <rpc>' }],
+  });
   const xml = buildFeed(history, doc);
   assert.doesNotMatch(xml, /A & B <rpc>/);
   assert.match(xml, /A &amp; B &lt;rpc&gt;/);
 });
 
 test('buildFeed: no history/no transitions still produces a valid empty feed', () => {
-  const doc = buildStatus({ generatedAt: '2026-06-01T00:00:00.000Z', systems: [sys('rpc', STATUS.UP, '2026-06-01T00:00:00.000Z')] });
+  const doc = buildStatus({
+    generatedAt: '2026-06-01T00:00:00.000Z',
+    systems: [sys('rpc', STATUS.UP, '2026-06-01T00:00:00.000Z')],
+  });
   const xml = buildFeed({}, doc);
   assert.match(xml, /<feed xmlns="http:\/\/www\.w3\.org\/2005\/Atom">/);
   assert.doesNotMatch(xml, /<entry>/);
@@ -64,9 +89,15 @@ test('buildFeed: no history/no transitions still produces a valid empty feed', (
 
 test('buildFeed: composes with appendHistory (integration of the two pure helpers)', () => {
   let history = {};
-  let doc = buildStatus({ generatedAt: '2026-06-01T00:00:00.000Z', systems: [sys('rpc', STATUS.UP, '2026-06-01T00:00:00.000Z')] });
+  let doc = buildStatus({
+    generatedAt: '2026-06-01T00:00:00.000Z',
+    systems: [sys('rpc', STATUS.UP, '2026-06-01T00:00:00.000Z')],
+  });
   history = appendHistory(history, doc);
-  doc = buildStatus({ generatedAt: '2026-06-01T00:05:00.000Z', systems: [sys('rpc', STATUS.DOWN, '2026-06-01T00:05:00.000Z')] });
+  doc = buildStatus({
+    generatedAt: '2026-06-01T00:05:00.000Z',
+    systems: [sys('rpc', STATUS.DOWN, '2026-06-01T00:05:00.000Z')],
+  });
   history = appendHistory(history, doc);
   const xml = buildFeed(history, doc);
   assert.match(xml, /<entry>/);

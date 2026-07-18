@@ -64,7 +64,10 @@ async function timedFetch(url, init = {}) {
     }
     return { status: res.status, body, latencyMs };
   } catch (err) {
-    return { error: err && err.name === 'AbortError' ? 'timeout' : String(err && err.message || err), latencyMs: Date.now() - start };
+    return {
+      error: err && err.name === 'AbortError' ? 'timeout' : String((err && err.message) || err),
+      latencyMs: Date.now() - start,
+    };
   } finally {
     clearTimeout(timer);
   }
@@ -78,9 +81,20 @@ async function probeJsonRpc(t) {
   });
   const c = classifyJsonRpc(outcome);
   return shapeResult({
-    id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
-    status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-    detail: { kind: 'jsonrpc', method: t.rpcMethod, ...(c.errorCode ? { errorCode: c.errorCode } : {}), ...(c.detail || {}) },
+    id: t.id,
+    name: t.name,
+    category: t.category,
+    description: t.description,
+    url: t.url,
+    status: c.status,
+    latencyMs: outcome.latencyMs,
+    checkedAt: new Date().toISOString(),
+    detail: {
+      kind: 'jsonrpc',
+      method: t.rpcMethod,
+      ...(c.errorCode ? { errorCode: c.errorCode } : {}),
+      ...(c.detail || {}),
+    },
     error: outcome.error,
   });
 }
@@ -95,9 +109,19 @@ async function probeHttp(t) {
   }
   const c = classifyHttp(outcome, { optional: t.optional });
   const rec = shapeResult({
-    id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
-    status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-    detail: { kind: 'http', httpStatus: outcome.status ?? null, ...(c.errorCode ? { errorCode: c.errorCode } : {}) },
+    id: t.id,
+    name: t.name,
+    category: t.category,
+    description: t.description,
+    url: t.url,
+    status: c.status,
+    latencyMs: outcome.latencyMs,
+    checkedAt: new Date().toISOString(),
+    detail: {
+      kind: 'http',
+      httpStatus: outcome.status ?? null,
+      ...(c.errorCode ? { errorCode: c.errorCode } : {}),
+    },
     error: outcome.error,
   });
   // An optional, possibly-unprovisioned endpoint never drags the overall.
@@ -117,7 +141,11 @@ async function timedTls(host, port) {
     const done = (outcome) => {
       if (settled) return;
       settled = true;
-      try { socket.destroy(); } catch { /* already closed */ }
+      try {
+        socket.destroy();
+      } catch {
+        /* already closed */
+      }
       resolveOutcome({ ...outcome, latencyMs: Date.now() - start });
     };
     const socket = tlsConnect(
@@ -131,9 +159,10 @@ async function timedTls(host, port) {
       // Node tags cert-validation failures with a `code` starting CERT_ / a few
       // known TLS codes; treat those as certError so they map to TLS_ERROR.
       const code = err && err.code ? String(err.code) : '';
-      const certError = /CERT|TLS|SSL|ERR_TLS/i.test(code) ||
-        /certificate|self.signed|self-signed/i.test(String(err && err.message || ''));
-      done({ error: String(err && err.message || err), certError });
+      const certError =
+        /CERT|TLS|SSL|ERR_TLS/i.test(code) ||
+        /certificate|self.signed|self-signed/i.test(String((err && err.message) || ''));
+      done({ error: String((err && err.message) || err), certError });
     });
   });
 }
@@ -142,9 +171,20 @@ async function probeTls(t) {
   const outcome = await timedTls(t.host, t.port);
   const c = classifyTls(outcome, { optional: t.optional });
   const rec = shapeResult({
-    id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
-    status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-    detail: { kind: 'tls', host: t.host, port: t.port, ...(c.errorCode ? { errorCode: c.errorCode } : {}) },
+    id: t.id,
+    name: t.name,
+    category: t.category,
+    description: t.description,
+    url: t.url,
+    status: c.status,
+    latencyMs: outcome.latencyMs,
+    checkedAt: new Date().toISOString(),
+    detail: {
+      kind: 'tls',
+      host: t.host,
+      port: t.port,
+      ...(c.errorCode ? { errorCode: c.errorCode } : {}),
+    },
     error: outcome.error,
   });
   if (t.optional) rec.excludeFromOverall = true;
@@ -160,9 +200,20 @@ async function probeChainView(t) {
   const c = classifyChainView(outcome);
   return {
     record: shapeResult({
-      id: t.id, name: t.name, category: t.category, description: t.description, url: t.url,
-      status: c.status, latencyMs: outcome.latencyMs, checkedAt: new Date().toISOString(),
-      detail: { kind: 'chainview', peakHeight: c.detail.peakHeight, synced: c.detail.synced, ...(c.errorCode ? { errorCode: c.errorCode } : {}) },
+      id: t.id,
+      name: t.name,
+      category: t.category,
+      description: t.description,
+      url: t.url,
+      status: c.status,
+      latencyMs: outcome.latencyMs,
+      checkedAt: new Date().toISOString(),
+      detail: {
+        kind: 'chainview',
+        peakHeight: c.detail.peakHeight,
+        synced: c.detail.synced,
+        ...(c.errorCode ? { errorCode: c.errorCode } : {}),
+      },
       error: outcome.error,
     }),
     peakHeight: c.detail.peakHeight,
@@ -184,7 +235,8 @@ function lastPeak(history) {
   const series = history && history.coinset;
   if (!series || !series.length) return { height: null, t: null };
   for (let i = series.length - 1; i >= 0; i--) {
-    if (typeof series[i].peakHeight === 'number') return { height: series[i].peakHeight, t: series[i].t };
+    if (typeof series[i].peakHeight === 'number')
+      return { height: series[i].peakHeight, t: series[i].t };
   }
   return { height: null, t: null };
 }
@@ -198,19 +250,35 @@ async function main() {
 
   // Run independent probes concurrently; derived rows are computed after.
   const independent = TARGETS.filter((t) => t.kind !== 'derived-peak');
-  const results = await Promise.all(independent.map(async (t) => {
-    if (t.kind === 'jsonrpc') return { t, record: await probeJsonRpc(t) };
-    if (t.kind === 'http') return { t, record: await probeHttp(t) };
-    if (t.kind === 'tls') return { t, record: await probeTls(t) };
-    if (t.kind === 'chainview') {
-      const r = await probeChainView(t);
-      return { t, record: r.record, peakHeight: r.peakHeight };
-    }
-    return { t, record: shapeResult({ id: t.id, name: t.name, category: t.category, status: STATUS.DOWN, latencyMs: 0, checkedAt: new Date().toISOString(), error: 'unknown kind' }) };
-  }));
+  const results = await Promise.all(
+    independent.map(async (t) => {
+      if (t.kind === 'jsonrpc') return { t, record: await probeJsonRpc(t) };
+      if (t.kind === 'http') return { t, record: await probeHttp(t) };
+      if (t.kind === 'tls') return { t, record: await probeTls(t) };
+      if (t.kind === 'chainview') {
+        const r = await probeChainView(t);
+        return { t, record: r.record, peakHeight: r.peakHeight };
+      }
+      return {
+        t,
+        record: shapeResult({
+          id: t.id,
+          name: t.name,
+          category: t.category,
+          status: STATUS.DOWN,
+          latencyMs: 0,
+          checkedAt: new Date().toISOString(),
+          error: 'unknown kind',
+        }),
+      };
+    }),
+  );
 
   for (const { t, record, peakHeight } of results) {
-    if (typeof peakHeight === 'number') { peakTargets.set(t.id, peakHeight); if (t.id === 'coinset') currentPeak = peakHeight; }
+    if (typeof peakHeight === 'number') {
+      peakTargets.set(t.id, peakHeight);
+      if (t.id === 'coinset') currentPeak = peakHeight;
+    }
     // Stash peakHeight onto the coinset record's detail for the history file so
     // freshness can be judged on the next run.
     if (typeof peakHeight === 'number') record.peakHeight = peakHeight;
@@ -222,19 +290,30 @@ async function main() {
     const prior = lastPeak(history);
     let secondsSincePrev = null;
     if (prior.t) secondsSincePrev = Math.max(0, (Date.now() - new Date(prior.t).getTime()) / 1000);
-    const fresh = classifyPeakFreshness({ height: currentPeak, prevHeight: prior.height, secondsSincePrev });
-    systems.push(shapeResult({
-      id: t.id, name: t.name, category: t.category, description: t.description,
-      status: typeof currentPeak === 'number' ? fresh.status : STATUS.DOWN,
-      latencyMs: 0, checkedAt: new Date().toISOString(),
-      detail: {
-        kind: 'derived', peakHeight: currentPeak,
-        advancedBy: fresh.detail ? fresh.detail.advanced : null,
-        ...(secondsSincePrev != null ? { secondsSincePrev: Math.round(secondsSincePrev) } : {}),
-        ...(fresh.errorCode ? { errorCode: fresh.errorCode } : {}),
-      },
-      error: typeof currentPeak === 'number' ? undefined : 'no coinset peak available',
-    }));
+    const fresh = classifyPeakFreshness({
+      height: currentPeak,
+      prevHeight: prior.height,
+      secondsSincePrev,
+    });
+    systems.push(
+      shapeResult({
+        id: t.id,
+        name: t.name,
+        category: t.category,
+        description: t.description,
+        status: typeof currentPeak === 'number' ? fresh.status : STATUS.DOWN,
+        latencyMs: 0,
+        checkedAt: new Date().toISOString(),
+        detail: {
+          kind: 'derived',
+          peakHeight: currentPeak,
+          advancedBy: fresh.detail ? fresh.detail.advanced : null,
+          ...(secondsSincePrev != null ? { secondsSincePrev: Math.round(secondsSincePrev) } : {}),
+          ...(fresh.errorCode ? { errorCode: fresh.errorCode } : {}),
+        },
+        error: typeof currentPeak === 'number' ? undefined : 'no coinset peak available',
+      }),
+    );
   }
 
   const generatedAt = new Date().toISOString();
@@ -263,9 +342,15 @@ async function main() {
   const feedXml = buildFeed(nextHistory, statusDoc);
 
   await mkdir(PUBLIC, { recursive: true });
-  await writeFile(STATUS_PATH, JSON.stringify(withSchema(statusDoc, 'status.schema.json'), null, 2) + '\n');
+  await writeFile(
+    STATUS_PATH,
+    JSON.stringify(withSchema(statusDoc, 'status.schema.json'), null, 2) + '\n',
+  );
   await writeFile(HISTORY_PATH, JSON.stringify(nextHistory) + '\n');
-  await writeFile(HEALTH_PATH, JSON.stringify(withSchema(healthDoc, 'health.schema.json'), null, 2) + '\n');
+  await writeFile(
+    HEALTH_PATH,
+    JSON.stringify(withSchema(healthDoc, 'health.schema.json'), null, 2) + '\n',
+  );
   await writeFile(FEED_PATH, feedXml);
 
   // Console summary for the CI log.

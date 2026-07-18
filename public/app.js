@@ -136,6 +136,10 @@ function setOverall(doc) {
     (s.down ? ` · ${s.down} down` : '');
 }
 
+// Byte-identical copy of lib/probe.js#computeUptime (up=1, degraded=0.5, down=0).
+// Deliberately duplicated: this file is a classic non-module <script> and lib/ is
+// never shipped to the browser, so it cannot be imported here. Keep the two in
+// lockstep — tests/uptime-parity.test.js asserts they score identically.
 function computeUptime(series) {
   if (!series || !series.length) return null;
   let score = 0;

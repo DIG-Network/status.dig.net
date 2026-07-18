@@ -27,7 +27,7 @@ permissions:
 
 jobs:
   unit:
-    name: unit tests (probe + schema + frontend-baseline)
+    name: unit tests (format + lint + probe/schema/baseline + coverage)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
@@ -38,8 +38,12 @@ jobs:
       # lockfile is present (dev deps for the a11y suite live here too).
       - name: install
         run: npm ci || npm install
-      - name: unit tests
-        run: node --test
+      - name: format check (prettier)
+        run: npm run format:check
+      - name: lint (eslint)
+        run: npm run lint
+      - name: unit tests + coverage gate (>=80%)
+        run: npm run coverage
 
   a11y:
     name: a11y (WCAG 2.2 AA, axe-core, desktop + mobile)

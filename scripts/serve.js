@@ -33,13 +33,22 @@ const server = createServer(async (req, res) => {
     if (urlPath === '/') urlPath = '/index.html';
     // Prevent path traversal: resolve under PUBLIC and verify containment.
     const filePath = normalize(join(PUBLIC, urlPath));
-    if (!filePath.startsWith(PUBLIC)) { res.writeHead(403); return res.end('forbidden'); }
+    if (!filePath.startsWith(PUBLIC)) {
+      res.writeHead(403);
+      return res.end('forbidden');
+    }
     const s = await stat(filePath).catch(() => null);
-    if (!s || !s.isFile()) { res.writeHead(404); return res.end('not found'); }
+    if (!s || !s.isFile()) {
+      res.writeHead(404);
+      return res.end('not found');
+    }
     const data = await readFile(filePath);
-    res.writeHead(200, { 'content-type': TYPES[extname(filePath)] || 'application/octet-stream', 'cache-control': 'no-store' });
+    res.writeHead(200, {
+      'content-type': TYPES[extname(filePath)] || 'application/octet-stream',
+      'cache-control': 'no-store',
+    });
     res.end(data);
-  } catch (err) {
+  } catch {
     res.writeHead(500);
     res.end('server error');
   }

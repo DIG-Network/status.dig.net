@@ -90,8 +90,14 @@
           "type": "string",
           "format": "date-time"
         },
-        "description": { "description": "Plain-language description of the system.", "type": "string" },
-        "url": { "description": "The probed endpoint (absent for derived rows).", "type": "string" },
+        "description": {
+          "description": "Plain-language description of the system.",
+          "type": "string"
+        },
+        "url": {
+          "description": "The probed endpoint (absent for derived rows).",
+          "type": "string"
+        },
         "error": {
           "description": "Human-readable failure detail when not up (e.g. 'fetch failed', 'timeout'). Branch on detail.errorCode, not this string.",
           "type": "string"

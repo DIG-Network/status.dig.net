@@ -30,7 +30,12 @@ const VERSION_TEMPLATED_FILES = ['index.html', 'app.js'];
 const VERSION_PLACEHOLDER = '%%APP_VERSION%%';
 
 async function exists(p) {
-  try { await access(p); return true; } catch { return false; }
+  try {
+    await access(p);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /** Read the app's own semver from package.json — the single source of truth for the build version. */
@@ -59,4 +64,7 @@ async function main() {
   console.log(`[build] injected app version ${version} into ${VERSION_TEMPLATED_FILES.join(', ')}`);
 }
 
-main().catch((err) => { console.error('build failed:', err); process.exit(1); });
+main().catch((err) => {
+  console.error('build failed:', err);
+  process.exit(1);
+});

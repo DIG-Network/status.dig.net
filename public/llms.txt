@@ -33,8 +33,12 @@ read the JSON directly rather than scraping the HTML.
 - `rpc` — rpc.dig.net: DIG JSON-RPC read service (blind content retrieval). The read path every client uses.
 - `hub-api` — hub.dig.net /v1: DIGHUb REST control plane (account/store/domain lifecycle).
 - `docs` — docs.dig.net: Docusaurus documentation site.
+- `explore` — explore.dig.net: curated DIG Network dApp store (HTTP 200 + cert).
 - `dignet` — dig.net: marketing / entry-point site.
 - `cdn` — cdn.dig.net: §21 encrypted-chunk CDN host front (optional; excluded from overall until provisioned).
+- `apt` — apt.dig.net: Ubuntu/Debian APT repository (apt install the DIG ecosystem). Optional (excluded from overall) while being provisioned.
+- `on-resolver` — *.on.dig.net: subdomain resolver serving published store content per subdomain (branded loader + client-side decrypt). Probed against a live subdomain (`chia-offer.on.dig.net`), confirming DNS + the resolver CloudFront dist + cert + the Lambda.
+- `bugreport-api` — api.bugreport.dig.net: bug-report intake API (auto-report → S3 + GitHub issues) every DIG frontend embeds. Probed against its `/v1/health` endpoint.
 - `relay` — relay.dig.net: NAT-traversal relay (rendezvous + circuit relay) DIG nodes connect through. Probed by a TLS handshake against the public NLB TLS edge (`wss://relay.dig.net:443`); a valid-cert handshake confirms the load balancer + cert + an in-rotation (internally health-checked) relay target are live. Optional (excluded from overall) while being provisioned.
 - `coinset` — coinset.org ChainView: Chia mainnet RPC (blockchain state / peak height) — the chain trust root.
 - `chia-mainnet` — Chia mainnet liveness, derived from coinset peak-height freshness (depends on `coinset`).

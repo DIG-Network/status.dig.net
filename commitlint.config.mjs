@@ -10,7 +10,19 @@ export default {
     'type-enum': [
       2,
       'always',
-      ['feat', 'fix', 'docs', 'style', 'refactor', 'perf', 'test', 'build', 'ci', 'chore', 'revert'],
+      [
+        'feat',
+        'fix',
+        'docs',
+        'style',
+        'refactor',
+        'perf',
+        'test',
+        'build',
+        'ci',
+        'chore',
+        'revert',
+      ],
     ],
     'subject-case': [0], // allow any subject casing (proper nouns, scheme literals like chia://)
     'body-max-line-length': [0], // long bodies (URLs, logs) are fine
