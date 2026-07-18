@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 This project adheres to [Semantic Versioning](https://semver.org) and
 [Conventional Commits](https://www.conventionalcommits.org).
 
+## [1.2.0] - 2026-07-18
+
+### Chores
+
+- **status:** Arch-audit #358 — doc-drift + parity test, SPEC.md, coverage+lint gates (#6)
+
 ## [1.1.2] - 2026-07-12
 
 ### CI
