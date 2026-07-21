@@ -1,7 +1,7 @@
 {
   "$schema": "https://status.dig.net/status.schema.json",
   "schemaVersion": 1,
-  "generatedAt": "2026-07-21T09:57:35.426Z",
+  "generatedAt": "2026-07-21T11:54:51.494Z",
   "overall": "up",
   "summary": {
     "up": 11,
@@ -15,8 +15,8 @@
       "name": "rpc.dig.net",
       "category": "Read path",
       "status": "up",
-      "latencyMs": 505,
-      "checkedAt": "2026-07-21T09:57:25.394Z",
+      "latencyMs": 577,
+      "checkedAt": "2026-07-21T11:54:41.522Z",
       "description": "DIG JSON-RPC read service (blind content retrieval).",
       "url": "https://rpc.dig.net/",
       "detail": {
@@ -29,8 +29,8 @@
       "name": "hub.dig.net /v1",
       "category": "Control plane",
       "status": "up",
-      "latencyMs": 405,
-      "checkedAt": "2026-07-21T09:57:25.605Z",
+      "latencyMs": 355,
+      "checkedAt": "2026-07-21T11:54:41.638Z",
       "description": "DIGHUb REST /v1 control plane (account/store/domain lifecycle).",
       "url": "https://hub.dig.net/v1/health",
       "detail": {
@@ -43,8 +43,8 @@
       "name": "docs.dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 255,
-      "checkedAt": "2026-07-21T09:57:25.190Z",
+      "latencyMs": 129,
+      "checkedAt": "2026-07-21T11:54:41.137Z",
       "description": "Docusaurus documentation site (HTTP 200 + cert).",
       "url": "https://docs.dig.net/",
       "detail": {
@@ -57,8 +57,8 @@
       "name": "explore.dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 537,
-      "checkedAt": "2026-07-21T09:57:25.473Z",
+      "latencyMs": 505,
+      "checkedAt": "2026-07-21T11:54:41.510Z",
       "description": "Curated DIG Network dApp store (HTTP 200 + cert).",
       "url": "https://explore.dig.net/",
       "detail": {
@@ -71,8 +71,8 @@
       "name": "dig.net",
       "category": "Sites",
       "status": "up",
-      "latencyMs": 113,
-      "checkedAt": "2026-07-21T09:57:25.053Z",
+      "latencyMs": 195,
+      "checkedAt": "2026-07-21T11:54:41.205Z",
       "description": "Marketing site (HTTP 200 + cert).",
       "url": "https://dig.net/",
       "detail": {
@@ -85,8 +85,8 @@
       "name": "cdn.dig.net",
       "category": "Read path",
       "status": "degraded",
-      "latencyMs": 10489,
-      "checkedAt": "2026-07-21T09:57:35.426Z",
+      "latencyMs": 10487,
+      "checkedAt": "2026-07-21T11:54:51.494Z",
       "description": "§21 encrypted-chunk CDN (host front).",
       "url": "https://cdn.dig.net/",
       "detail": {
@@ -102,8 +102,8 @@
       "name": "apt.dig.net",
       "category": "Distribution",
       "status": "up",
-      "latencyMs": 421,
-      "checkedAt": "2026-07-21T09:57:25.360Z",
+      "latencyMs": 259,
+      "checkedAt": "2026-07-21T11:54:41.268Z",
       "description": "Ubuntu/Debian APT repository (apt install the DIG ecosystem).",
       "url": "https://apt.dig.net/",
       "detail": {
@@ -117,8 +117,8 @@
       "name": "*.on.dig.net",
       "category": "Read path",
       "status": "up",
-      "latencyMs": 788,
-      "checkedAt": "2026-07-21T09:57:25.786Z",
+      "latencyMs": 994,
+      "checkedAt": "2026-07-21T11:54:42.004Z",
       "description": "Subdomain resolver — serves published store content per subdomain (branded loader + client-side decrypt).",
       "url": "https://chia-offer.on.dig.net/",
       "detail": {
@@ -131,8 +131,8 @@
       "name": "api.bugreport.dig.net",
       "category": "Control plane",
       "status": "up",
-      "latencyMs": 1139,
-      "checkedAt": "2026-07-21T09:57:26.078Z",
+      "latencyMs": 1128,
+      "checkedAt": "2026-07-21T11:54:42.137Z",
       "description": "Bug-report intake API (auto-report → S3 + GitHub issues) every DIG frontend embeds.",
       "url": "https://api.bugreport.dig.net/v1/health",
       "detail": {
@@ -145,8 +145,8 @@
       "name": "relay.dig.net",
       "category": "Network",
       "status": "up",
-      "latencyMs": 295,
-      "checkedAt": "2026-07-21T09:57:25.235Z",
+      "latencyMs": 364,
+      "checkedAt": "2026-07-21T11:54:41.376Z",
       "description": "NAT-traversal relay (rendezvous + circuit relay) DIG nodes connect through.",
       "url": "wss://relay.dig.net:443",
       "detail": {
@@ -161,16 +161,16 @@
       "name": "coinset.org ChainView",
       "category": "Chia",
       "status": "up",
-      "latencyMs": 521,
-      "checkedAt": "2026-07-21T09:57:25.463Z",
+      "latencyMs": 485,
+      "checkedAt": "2026-07-21T11:54:41.498Z",
       "description": "Chia mainnet RPC (blockchain state / peak height) — the chain trust root.",
       "url": "https://api.coinset.org/get_blockchain_state",
       "detail": {
         "kind": "chainview",
-        "peakHeight": 9037066,
+        "peakHeight": 9037426,
         "synced": true
       },
-      "peakHeight": 9037066
+      "peakHeight": 9037426
     },
     {
       "id": "chia-mainnet",
@@ -178,13 +178,13 @@
       "category": "Chia",
       "status": "up",
       "latencyMs": 0,
-      "checkedAt": "2026-07-21T09:57:35.426Z",
+      "checkedAt": "2026-07-21T11:54:51.494Z",
       "description": "Mainnet liveness — derived from coinset peak-height freshness.",
       "detail": {
         "kind": "derived",
-        "peakHeight": 9037066,
-        "advancedBy": 514,
-        "secondsSincePrev": 9532
+        "peakHeight": 9037426,
+        "advancedBy": 360,
+        "secondsSincePrev": 7046
       }
     }
   ]
