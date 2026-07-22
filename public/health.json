@@ -1,8 +1,8 @@
 {
   "$schema": "https://status.dig.net/health.schema.json",
   "schemaVersion": 1,
-  "overall": "down",
-  "generatedAt": "2026-07-22T01:09:01.806Z",
+  "overall": "up",
+  "generatedAt": "2026-07-22T04:35:06.526Z",
   "systems": {
     "rpc": "up",
     "hub-api": "up",
@@ -14,7 +14,7 @@
     "on-resolver": "up",
     "bugreport-api": "up",
     "relay": "up",
-    "coinset": "down",
-    "chia-mainnet": "down"
+    "coinset": "up",
+    "chia-mainnet": "up"
   }
 }
