@@ -3,7 +3,7 @@
   <id>https://status.dig.net/</id>
   <title>DIG Network Status</title>
   <subtitle>Status-change history for the core DIG Network systems.</subtitle>
-  <updated>2026-07-26T14:04:42.490Z</updated>
+  <updated>2026-07-26T15:18:46.121Z</updated>
   <link rel="self" type="application/atom+xml" href="https://status.dig.net/feed.xml" />
   <link rel="alternate" type="text/html" href="https://status.dig.net/" />
   <entry>
@@ -222,5 +222,26 @@
     <updated>2026-07-26T07:27:54.968Z</updated>
     <link href="https://status.dig.net/" />
     <content type="text">hub.dig.net /v1 recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#hub-api-2026-07-26T15:18:35.684Z</id>
+    <title>hub.dig.net /v1: degraded</title>
+    <updated>2026-07-26T15:18:35.684Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">hub.dig.net /v1 is now degraded (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#rpc-2026-07-26T15:18:35.857Z</id>
+    <title>rpc.dig.net: down</title>
+    <updated>2026-07-26T15:18:35.857Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">rpc.dig.net is now down (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#docs-2026-07-26T15:18:35.966Z</id>
+    <title>docs.dig.net: degraded</title>
+    <updated>2026-07-26T15:18:35.966Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">docs.dig.net is now degraded (was up).</content>
   </entry>
 </feed>
