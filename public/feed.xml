@@ -3,7 +3,7 @@
   <id>https://status.dig.net/</id>
   <title>DIG Network Status</title>
   <subtitle>Status-change history for the core DIG Network systems.</subtitle>
-  <updated>2026-08-12T21:27:24.600Z</updated>
+  <updated>2026-08-12T22:20:56.581Z</updated>
   <link rel="self" type="application/atom+xml" href="https://status.dig.net/feed.xml" />
   <link rel="alternate" type="text/html" href="https://status.dig.net/" />
   <entry>
@@ -768,5 +768,75 @@
     <updated>2026-08-12T21:27:24.600Z</updated>
     <link href="https://status.dig.net/" />
     <content type="text">api.bugreport.dig.net is now degraded (was up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#docs-2026-08-12T22:20:55.352Z</id>
+    <title>docs.dig.net: up</title>
+    <updated>2026-08-12T22:20:55.352Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">docs.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#dignet-2026-08-12T22:20:55.424Z</id>
+    <title>dig.net: up</title>
+    <updated>2026-08-12T22:20:55.424Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#apt-2026-08-12T22:20:55.459Z</id>
+    <title>apt.dig.net: up</title>
+    <updated>2026-08-12T22:20:55.459Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">apt.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#coinset-2026-08-12T22:20:55.535Z</id>
+    <title>coinset.org ChainView: up</title>
+    <updated>2026-08-12T22:20:55.535Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">coinset.org ChainView recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#relay-2026-08-12T22:20:55.644Z</id>
+    <title>relay.dig.net: up</title>
+    <updated>2026-08-12T22:20:55.644Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">relay.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#explore-2026-08-12T22:20:55.695Z</id>
+    <title>explore.dig.net: up</title>
+    <updated>2026-08-12T22:20:55.695Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">explore.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#rpc-2026-08-12T22:20:55.819Z</id>
+    <title>rpc.dig.net: up</title>
+    <updated>2026-08-12T22:20:55.819Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">rpc.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#on-resolver-2026-08-12T22:20:56.165Z</id>
+    <title>*.on.dig.net: up</title>
+    <updated>2026-08-12T22:20:56.165Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">*.on.dig.net recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#hub-api-2026-08-12T22:20:56.505Z</id>
+    <title>hub.dig.net /v1: up</title>
+    <updated>2026-08-12T22:20:56.505Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">hub.dig.net /v1 recovered (degraded -&gt; up).</content>
+  </entry>
+  <entry>
+    <id>https://status.dig.net/#bugreport-api-2026-08-12T22:20:56.580Z</id>
+    <title>api.bugreport.dig.net: up</title>
+    <updated>2026-08-12T22:20:56.580Z</updated>
+    <link href="https://status.dig.net/" />
+    <content type="text">api.bugreport.dig.net recovered (degraded -&gt; up).</content>
   </entry>
 </feed>
