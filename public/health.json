@@ -1,11 +1,11 @@
 {
   "$schema": "https://status.dig.net/health.schema.json",
   "schemaVersion": 1,
-  "overall": "up",
-  "generatedAt": "2026-08-22T05:21:42.729Z",
+  "overall": "degraded",
+  "generatedAt": "2026-08-22T05:52:22.432Z",
   "systems": {
     "rpc": "up",
-    "hub-api": "up",
+    "hub-api": "degraded",
     "docs": "up",
     "explore": "up",
     "dignet": "up",
