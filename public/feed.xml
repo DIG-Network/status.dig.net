@@ -3,23 +3,9 @@
   <id>https://status.dig.net/</id>
   <title>DIG Network Status</title>
   <subtitle>Status-change history for the core DIG Network systems.</subtitle>
-  <updated>2026-09-23T22:59:46.000Z</updated>
+  <updated>2026-09-23T23:16:48.204Z</updated>
   <link rel="self" type="application/atom+xml" href="https://status.dig.net/feed.xml" />
   <link rel="alternate" type="text/html" href="https://status.dig.net/" />
-  <entry>
-    <id>https://status.dig.net/#coinset-2026-07-01T11:46:32.003Z</id>
-    <title>coinset.org ChainView: down</title>
-    <updated>2026-07-01T11:46:32.003Z</updated>
-    <link href="https://status.dig.net/" />
-    <content type="text">coinset.org ChainView is now down (was up).</content>
-  </entry>
-  <entry>
-    <id>https://status.dig.net/#chia-mainnet-2026-07-01T11:46:41.822Z</id>
-    <title>Chia mainnet: down</title>
-    <updated>2026-07-01T11:46:41.822Z</updated>
-    <link href="https://status.dig.net/" />
-    <content type="text">Chia mainnet is now down (was up).</content>
-  </entry>
   <entry>
     <id>https://status.dig.net/#coinset-2026-07-01T12:44:16.804Z</id>
     <title>coinset.org ChainView: up</title>
