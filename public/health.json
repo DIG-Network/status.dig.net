@@ -2,7 +2,7 @@
   "$schema": "https://status.dig.net/health.schema.json",
   "schemaVersion": 1,
   "overall": "down",
-  "generatedAt": "2026-09-25T11:46:41.063Z",
+  "generatedAt": "2026-09-25T11:55:39.247Z",
   "systems": {
     "rpc": "up",
     "hub-api": "down",
