@@ -3,16 +3,9 @@
   <id>https://status.dig.net/</id>
   <title>DIG Network Status</title>
   <subtitle>Status-change history for the core DIG Network systems.</subtitle>
-  <updated>2026-09-27T22:20:10.244Z</updated>
+  <updated>2026-09-27T22:32:35.744Z</updated>
   <link rel="self" type="application/atom+xml" href="https://status.dig.net/feed.xml" />
   <link rel="alternate" type="text/html" href="https://status.dig.net/" />
-  <entry>
-    <id>https://status.dig.net/#explore-2026-08-10T23:41:39.316Z</id>
-    <title>explore.dig.net: up</title>
-    <updated>2026-08-10T23:41:39.316Z</updated>
-    <link href="https://status.dig.net/" />
-    <content type="text">explore.dig.net recovered (degraded -&gt; up).</content>
-  </entry>
   <entry>
     <id>https://status.dig.net/#on-resolver-2026-08-11T10:37:50.028Z</id>
     <title>*.on.dig.net: degraded</title>
